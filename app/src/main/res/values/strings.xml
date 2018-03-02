@@ -1,0 +1,14 @@
+<resources>
+
+    <string name="app_name">MyPlayer</string>
+
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="frag1">List Song</string>
+
+    <string name="frag2">Album</string>
+
+    <string name="frag3">Artist</string>
+
+</resources>
