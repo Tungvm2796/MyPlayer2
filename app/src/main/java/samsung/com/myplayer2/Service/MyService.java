@@ -77,8 +77,14 @@ public class MyService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(intent.getAction() != null){
-            if(intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION))
+            if(intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION)) {
                 pausePlayer();
+                showNoti(2);
+            }
+            else if(intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION)){
+                go();
+                showNoti(1);
+            }
 
         }
         return super.onStartCommand(intent, flags, startId);
@@ -172,10 +178,12 @@ public class MyService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
-        showNoti();
+        showNoti(1);
     }
 
-    public void showNoti(){
+
+
+    public void showNoti(int casenum){
         //notification
         Intent notIntent = new Intent(this, MainActivity.class);
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -186,6 +194,10 @@ public class MyService extends Service implements
         pauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
         PendingIntent ppauseIntent = PendingIntent.getService(this, 0, pauseIntent, 0);
 
+        Intent playIntent = new Intent(this, MyService.class);
+        playIntent.setAction(Constants.ACTION.PLAY_ACTION);
+        PendingIntent pplayIntent = PendingIntent.getService(this, 0, playIntent, 0);
+
         Notification.Builder builder = new Notification.Builder(this);
 
         builder.setContentIntent(pendInt)
@@ -195,14 +207,23 @@ public class MyService extends Service implements
                 .setContentTitle("Now Playing")
                 .setContentText(songTitle)
                 .setAutoCancel(true);
-
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notice_layout);
-        contentView.setOnClickPendingIntent(R.id.notice_play, ppauseIntent);
+        switch (casenum){
+            case 1:
+                contentView.setOnClickPendingIntent(R.id.notice_play, ppauseIntent);
+                contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_pause_circle_outline_white_24dp);
+                break;
+            case 2:
+                contentView.setOnClickPendingIntent(R.id.notice_play, pplayIntent);
+                contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_play_circle_outline_white_24dp);
+                break;
+        }
+
+
+
 
         Notification noti = builder.build();
         noti.contentView = contentView;
-
-
 
         startForeground(NOTIFY_ID, noti);
     }

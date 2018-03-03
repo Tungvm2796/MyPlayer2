@@ -29,7 +29,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:background="@null"
-            android:src="@drawable/ic_play_circle_outline_white_24dp" />
+            android:src="@drawable/ic_pause_circle_outline_white_24dp" />
 
         <ImageButton
             android:id="@+id/notice_next"
