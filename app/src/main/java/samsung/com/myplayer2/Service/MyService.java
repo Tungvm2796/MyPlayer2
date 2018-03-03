@@ -119,6 +119,7 @@ public class MyService extends Service implements
     //release resources when unbind
     @Override
     public boolean onUnbind(Intent intent){
+
         return false;
     }
 
@@ -250,6 +251,7 @@ public class MyService extends Service implements
 
     public void go(){
         player.start();
+        showNoti(1);
     }
 
     public int getCurPos(){ return player.getCurrentPosition();}
