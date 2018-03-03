@@ -11,5 +11,6 @@ public class Constants {
         public static String PLAY_ACTION = "samsung.com.myplayer2.action.play";
         public static String PAUSE_ACTION = "samsung.com.myplayer2.action.pause";
         public static String NEXT_ACTION = "samsung.com.myplayer2.action.next";
+        public static String EXIT_ACTION = "samsung.com.myplayer2.action.exit";
     }
 }

@@ -51,14 +51,6 @@ public class MyService extends Service implements
     private boolean shuffle=false;
     private Random rand;
 
-    public static final String ACTION_PLAY = "action_play";
-    public static final String ACTION_PAUSE = "action_pause";
-    public static final String ACTION_REWIND = "action_rewind";
-    public static final String ACTION_FAST_FORWARD = "action_fast_foward";
-    public static final String ACTION_NEXT = "action_next";
-    public static final String ACTION_PREVIOUS = "action_previous";
-    public static final String ACTION_STOP = "action_stop";
-
     public void onCreate(){
         //create the service
         super.onCreate();
@@ -85,7 +77,10 @@ public class MyService extends Service implements
                 go();
                 showNoti(1);
             }
-
+            else if(intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)){
+                if(!player.isPlaying())
+                    stopForeground(true);
+            }
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -198,6 +193,10 @@ public class MyService extends Service implements
         playIntent.setAction(Constants.ACTION.PLAY_ACTION);
         PendingIntent pplayIntent = PendingIntent.getService(this, 0, playIntent, 0);
 
+        Intent closeIntent = new Intent(this, MyService.class);
+        closeIntent.setAction(Constants.ACTION.EXIT_ACTION);
+        PendingIntent pcloseIntent = PendingIntent.getService(this, 0, closeIntent, 0);
+
         Notification.Builder builder = new Notification.Builder(this);
 
         builder.setContentIntent(pendInt)
@@ -219,7 +218,7 @@ public class MyService extends Service implements
                 break;
         }
 
-
+        contentView.setOnClickPendingIntent(R.id.exit_notice, pcloseIntent);
 
 
         Notification noti = builder.build();
