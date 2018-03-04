@@ -22,6 +22,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
+import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean musicBound = false;
     private Intent playintent;
     ImageButton btnPlayPause;
-
+    private Intent PPIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initPermission();
+
+        context = this;
 
         viewPager = (ViewPager) findViewById(R.id.viewpager1);
 
@@ -84,14 +87,20 @@ public class MainActivity extends AppCompatActivity {
                 if(myService.isPng()) {
                     myService.pausePlayer();
                     btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+                    Intent pauseIntent = new Intent(context, MyService.class);
+                    pauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
+                    startService(pauseIntent);
+
                 }
                 else {
                     myService.go();
                     btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                    Intent playIntent = new Intent(context, MyService.class);
+                    playIntent.setAction(Constants.ACTION.PLAY_ACTION);
+                    startService(playIntent);
                 }
             }
         });
-
     }
 
     public void initPermission() {
@@ -120,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelCollapsed(View view) {
-
+                if(myService.isPng())
+                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
             }
 
             @Override
@@ -175,5 +185,17 @@ public class MainActivity extends AppCompatActivity {
             musicBound = false;
         }
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction() != null){
+            if(intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION))
+                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+            else if(intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION))
+                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+        }
+    }
+
 
 }

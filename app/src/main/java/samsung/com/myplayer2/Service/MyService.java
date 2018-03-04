@@ -1,9 +1,11 @@
 package samsung.com.myplayer2.Service;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -11,6 +13,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import android.widget.RemoteViews;
 
@@ -46,7 +49,7 @@ public class MyService extends Service implements
     //artist of current song
     private String songArtist="";
     //notification id
-    private static final int NOTIFY_ID=1;
+    private static final int NOTIFY_ID = 27;
     //shuffle flag and random
     private boolean shuffle=false;
     private Random rand;
@@ -119,7 +122,16 @@ public class MyService extends Service implements
     //release resources when unbind
     @Override
     public boolean onUnbind(Intent intent){
-
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications = notificationManager.getActiveNotifications();
+        int count = 0;
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == 27) {
+                count++;
+            }
+        }
+        if (count == 0)
+            onDestroy();
         return false;
     }
 
@@ -183,8 +195,7 @@ public class MyService extends Service implements
         //notification
         Intent notIntent = new Intent(this, MainActivity.class);
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendInt = PendingIntent.getActivity(this, 0,
-                notIntent, 0);
+        PendingIntent pendInt = PendingIntent.getActivity(this, 0, notIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent pauseIntent = new Intent(this, MyService.class);
         pauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
@@ -198,6 +209,10 @@ public class MyService extends Service implements
         closeIntent.setAction(Constants.ACTION.EXIT_ACTION);
         PendingIntent pcloseIntent = PendingIntent.getService(this, 0, closeIntent, 0);
 
+        Intent mainpauseIntent = new Intent(this, MainActivity.class);
+        mainpauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
+        PendingIntent pmainpauseIntent = PendingIntent.getActivity(this, 0, mainpauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Notification.Builder builder = new Notification.Builder(this);
 
         builder.setContentIntent(pendInt)
@@ -210,8 +225,8 @@ public class MyService extends Service implements
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notice_layout);
         switch (casenum){
             case 1:
-                contentView.setOnClickPendingIntent(R.id.notice_play, ppauseIntent);
                 contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_pause_circle_outline_white_24dp);
+                contentView.setOnClickPendingIntent(R.id.notice_play, ppauseIntent);
                 break;
             case 2:
                 contentView.setOnClickPendingIntent(R.id.notice_play, pplayIntent);
@@ -243,6 +258,9 @@ public class MyService extends Service implements
 
     public void pausePlayer(){
         player.pause();
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Constants.ACTION.PAUSE_ACTION);
+        startActivity(intent);
     }
 
     public void seek(int posn){
@@ -251,7 +269,9 @@ public class MyService extends Service implements
 
     public void go(){
         player.start();
-        showNoti(1);
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(Constants.ACTION.PLAY_ACTION);
+        startActivity(intent);
     }
 
     public int getCurPos(){ return player.getCurrentPosition();}
