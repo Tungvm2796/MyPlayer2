@@ -45,22 +45,24 @@ public class MyService extends Service implements
     //binder
     private final IBinder musicBind = new MusicBinder();
     //title of current song
-    private String songTitle="";
+    private String songTitle = "";
     //artist of current song
-    private String songArtist="";
+    private String songArtist = "";
     //notification id
     private static final int NOTIFY_ID = 27;
     //shuffle flag and random
-    private boolean shuffle=false;
+    private boolean shuffle = false;
     private Random rand;
 
-    public void onCreate(){
+    private boolean isBind;
+
+    public void onCreate() {
         //create the service
         super.onCreate();
         //initialize position
-        songPosn=0;
+        songPosn = 0;
         //random
-        rand=new Random();
+        rand = new Random();
         //create player
         player = new MediaPlayer();
 
@@ -71,25 +73,34 @@ public class MyService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if(intent.getAction() != null){
-            if(intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION)) {
+        if (intent.getAction() != null) {
+            if (intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION)) {
                 pausePlayer();
                 showNoti(2);
-            }
-            else if(intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION)){
+                Intent paintent = new Intent(this, MainActivity.class);
+                paintent.setAction(Constants.ACTION.PAUSE_ACTION);
+                sendBroadcast(paintent);
+            } else if (intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION)) {
                 go();
                 showNoti(1);
-            }
-            else if(intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)){
-                if(!player.isPlaying())
-                    stopForeground(true);
+                Intent plintent = new Intent(this, MainActivity.class);
+                plintent.setAction(Constants.ACTION.PLAY_ACTION);
+                sendBroadcast(plintent);
+            } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
+                if (!player.isPlaying()) {
+                    if (isBind = true)
+                        stopForeground(true);
+                    else if (isBind = false) {
+                        onDestroy();
+                    }
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
 
-    public void initMusicPlayer(){
+    public void initMusicPlayer() {
 
         //set player properties
         player.setWakeMode(getApplicationContext(),
@@ -102,8 +113,8 @@ public class MyService extends Service implements
     }
 
     //pass song list
-    public void setList(ArrayList<Song> theSongs){
-        songs=theSongs;
+    public void setList(ArrayList<Song> theSongs) {
+        songs = theSongs;
     }
 
     //binder
@@ -116,35 +127,27 @@ public class MyService extends Service implements
     //activity will bind to service
     @Override
     public IBinder onBind(Intent intent) {
+        isBind = true;
         return musicBind;
     }
 
     //release resources when unbind
     @Override
-    public boolean onUnbind(Intent intent){
-        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
-        StatusBarNotification[] notifications = notificationManager.getActiveNotifications();
-        int count = 0;
-        for (StatusBarNotification notification : notifications) {
-            if (notification.getId() == 27) {
-                count++;
-            }
-        }
-        if (count == 0)
-            onDestroy();
+    public boolean onUnbind(Intent intent) {
+        isBind = false;
         return false;
     }
 
     //play a song
-    public void playSong(){
+    public void playSong() {
         //play
         player.reset();
         //get song
         Song playSong = songs.get(songPosn);
         //get title
-        songTitle=playSong.getTitle();
+        songTitle = playSong.getTitle();
         //get artist
-        songArtist=playSong.getArtist();
+        songArtist = playSong.getArtist();
         //get id
         long currSong = playSong.getID();
         //set uri
@@ -152,24 +155,23 @@ public class MyService extends Service implements
                 android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 currSong);
         //set the data source
-        try{
+        try {
             player.setDataSource(getApplicationContext(), trackUri);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
         player.prepareAsync();
     }
 
     //set the song
-    public void setSong(int songIndex){
-        songPosn=songIndex;
+    public void setSong(int songIndex) {
+        songPosn = songIndex;
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
         //check if playback has reached the end of a track
-        if(player.getCurrentPosition()>0){
+        if (player.getCurrentPosition() > 0) {
             mp.reset();
             playNext();
         }
@@ -190,8 +192,7 @@ public class MyService extends Service implements
     }
 
 
-
-    public void showNoti(int casenum){
+    public void showNoti(int casenum) {
         //notification
         Intent notIntent = new Intent(this, MainActivity.class);
         notIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -223,7 +224,7 @@ public class MyService extends Service implements
                 .setContentText(songTitle)
                 .setAutoCancel(true);
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notice_layout);
-        switch (casenum){
+        switch (casenum) {
             case 1:
                 contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_pause_circle_outline_white_24dp);
                 contentView.setOnClickPendingIntent(R.id.notice_play, ppauseIntent);
@@ -244,59 +245,68 @@ public class MyService extends Service implements
     }
 
     //playback methods
-    public int getPosn(){
+    public int getPosn() {
         return player.getCurrentPosition();
     }
 
-    public int getDur(){
+    public int getDur() {
         return player.getDuration();
     }
 
-    public boolean isPng(){
+    public boolean isPng() {
         return player.isPlaying();
     }
 
-    public void pausePlayer(){
+    public void pausePlayer() {
         player.pause();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(Constants.ACTION.PAUSE_ACTION);
-        startActivity(intent);
     }
 
-    public void seek(int posn){
+    public void seek(int posn) {
         player.seekTo(posn);
     }
 
-    public void go(){
+    public void go() {
         player.start();
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(Constants.ACTION.PLAY_ACTION);
-        startActivity(intent);
     }
 
-    public int getCurPos(){ return player.getCurrentPosition();}
+    public int CountNoti(){
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications = notificationManager.getActiveNotifications();
+        int count = 0;
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == 27) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-    public String getSongTitle(){ return songTitle;}
+    public int getCurPos() {
+        return player.getCurrentPosition();
+    }
+
+    public String getSongTitle() {
+        return songTitle;
+    }
 
     //skip to previous track
-    public void playPrev(){
+    public void playPrev() {
         songPosn--;
-        if(songPosn<0) songPosn=songs.size()-1;
+        if (songPosn < 0) songPosn = songs.size() - 1;
         playSong();
     }
 
     //skip to next
-    public void playNext(){
-        if(shuffle){
+    public void playNext() {
+        if (shuffle) {
             int newSong = songPosn;
-            while(newSong==songPosn){
-                newSong=rand.nextInt(songs.size());
+            while (newSong == songPosn) {
+                newSong = rand.nextInt(songs.size());
             }
-            songPosn=newSong;
-        }
-        else{
+            songPosn = newSong;
+        } else {
             songPosn++;
-            if(songPosn>=songs.size()) songPosn=0;
+            if (songPosn >= songs.size()) songPosn = 0;
         }
         playSong();
     }
@@ -304,14 +314,21 @@ public class MyService extends Service implements
     @Override
     public void onDestroy() {
         stopForeground(true);
+        player.stop();
+        player.release();
     }
 
     //toggle shuffle
-    public void setShuffle(){
-        if(shuffle) shuffle=false;
-        else shuffle=true;
+    public void setShuffle() {
+        if (shuffle) shuffle = false;
+        else shuffle = true;
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
 
-
+        if(CountNoti() == 0)
+            stopSelf();
+    }
 }

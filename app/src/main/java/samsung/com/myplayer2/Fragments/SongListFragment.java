@@ -1,4 +1,5 @@
 package samsung.com.myplayer2.Fragments;
+
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -45,20 +46,22 @@ public class SongListFragment extends Fragment {
     public SongListFragment() {
         // Required empty public constructor
     }
-    public void SortByName(){
-        Collections.sort(SongList, new Comparator<Song>(){
-            public int compare(Song a, Song b){
+
+    public void SortByName() {
+        Collections.sort(SongList, new Comparator<Song>() {
+            public int compare(Song a, Song b) {
                 return a.getTitle().compareTo(b.getTitle());
             }
         });
     }
+
     private ArrayList<Song> SongList;
     private ListView songView;
     EditText searchbox;
     Context context;
     Animation animation;
     ImageButton nowplaying;
-    int playornot=0;
+    int playornot = 0;
 
     MyService myService;
     private boolean musicBound = false;
@@ -75,7 +78,7 @@ public class SongListFragment extends Fragment {
         seekBar.setMax(myService.getDur());
     }
 
-    public void UpdateTimeSong(){
+    public void UpdateTimeSong() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -105,20 +108,20 @@ public class SongListFragment extends Fragment {
         getSongList();
         final SongAdapter songAdt = new SongAdapter(getActivity(), SongList);
         songView.setAdapter(songAdt);
-        searchbox = (EditText)v.findViewById(R.id.searchbox);
+        searchbox = (EditText) v.findViewById(R.id.searchbox);
         searchbox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
+
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(charSequence.length() == 0){
+                if (charSequence.length() == 0) {
                     SongList.clear();
                     getSongList();
                     SongAdapter songAdapter1 = new SongAdapter(getActivity(), SongList);
                     songView.setAdapter(songAdapter1);
-                }
-                else {
+                } else {
                     songView.setAdapter(null);
                     SongList.clear();
                     getSongByName(charSequence.toString().toLowerCase());
@@ -126,6 +129,7 @@ public class SongListFragment extends Fragment {
                     songView.setAdapter(songAdapter2);
                 }
             }
+
             @Override
             public void afterTextChanged(Editable editable) {
             }
@@ -136,6 +140,8 @@ public class SongListFragment extends Fragment {
                 btnPP.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 myService.setSong(position);
                 myService.playSong();
+                UpdateTimeSong();
+                //SetTimeTotal();
                 textTitle.setText(myService.getSongTitle());
 
             }
@@ -147,35 +153,9 @@ public class SongListFragment extends Fragment {
     public void getSongList() {
         //retrieve song info
         ContentResolver musicResolver = getActivity().getContentResolver();
-        Uri musicUri  = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-        if(musicCursor!=null && musicCursor.moveToFirst()){
-            //get collumn
-            int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
-            int artisColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-            long coverid = musicCursor.getLong(musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
-            //add song to list
-            do{
-                long thisId = musicCursor.getLong(idColumn);
-                String thisTitle = musicCursor.getString(titleColumn);
-                String thisArtis = musicCursor.getString(artisColumn);
-                String thisData = musicCursor.getString(dataColumn);
-                Uri solidUri = Uri.parse("content://media/external/audio/");
-                Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
-                SongList.add(new Song(thisId, thisTitle, thisArtis, null,thisData));
-            }
-            while(musicCursor.moveToNext());
-        }
-        SortByName();
-    }
-    public void getSongByName(String entry){
-        //retrieve song info
-        ContentResolver musicResolver = getActivity().getContentResolver();
-        Uri musicUri  = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-        if(musicCursor!=null && musicCursor.moveToFirst()){
+        if (musicCursor != null && musicCursor.moveToFirst()) {
             //get collumn
             int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
@@ -190,10 +170,37 @@ public class SongListFragment extends Fragment {
                 String thisData = musicCursor.getString(dataColumn);
                 Uri solidUri = Uri.parse("content://media/external/audio/");
                 Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
-                if(thisTitle.toLowerCase().contains(entry))
-                    SongList.add(new Song(thisId, thisTitle, thisArtis, null,thisData));
+                SongList.add(new Song(thisId, thisTitle, thisArtis, null, thisData));
             }
-            while(musicCursor.moveToNext());
+            while (musicCursor.moveToNext());
+        }
+        SortByName();
+    }
+
+    public void getSongByName(String entry) {
+        //retrieve song info
+        ContentResolver musicResolver = getActivity().getContentResolver();
+        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        if (musicCursor != null && musicCursor.moveToFirst()) {
+            //get collumn
+            int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            int artisColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            long coverid = musicCursor.getLong(musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+            //add song to list
+            do {
+                long thisId = musicCursor.getLong(idColumn);
+                String thisTitle = musicCursor.getString(titleColumn);
+                String thisArtis = musicCursor.getString(artisColumn);
+                String thisData = musicCursor.getString(dataColumn);
+                Uri solidUri = Uri.parse("content://media/external/audio/");
+                Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
+                if (thisTitle.toLowerCase().contains(entry))
+                    SongList.add(new Song(thisId, thisTitle, thisArtis, null, thisData));
+            }
+            while (musicCursor.moveToNext());
         }
         SortByName();
     }
@@ -201,13 +208,14 @@ public class SongListFragment extends Fragment {
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            MyService.MusicBinder binder = (MyService.MusicBinder)service;
+            MyService.MusicBinder binder = (MyService.MusicBinder) service;
             //get service
             myService = binder.getService();
             //pass list
             myService.setList(SongList);
             musicBound = true;
         }
+
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             musicBound = false;
@@ -218,9 +226,9 @@ public class SongListFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-            playintent = new Intent(getActivity(), MyService.class);
-            getActivity().startService(playintent);
-            getActivity().bindService(playintent, musicConnection, Context.BIND_AUTO_CREATE);
+        playintent = new Intent(getActivity(), MyService.class);
+        getActivity().startService(playintent);
+        getActivity().bindService(playintent, musicConnection, Context.BIND_AUTO_CREATE);
 
     }
 
@@ -244,7 +252,7 @@ public class SongListFragment extends Fragment {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String ret = settings.getString("cursongname", "0");

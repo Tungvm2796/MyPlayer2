@@ -1,9 +1,11 @@
 package samsung.com.myplayer2.Activities;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ import samsung.com.myplayer2.Adapter.FragmentAdapter;
 import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
+import samsung.com.myplayer2.Service.MyBroadcast;
 import samsung.com.myplayer2.Service.MyService;
 
 public class MainActivity extends AppCompatActivity {
@@ -73,26 +76,25 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setTabsFromPagerAdapter(fragmentAdapter);
 
         //set layout slide listener
-        slidingLayout = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
+        slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
         //some "demo" event
         slidingLayout.setPanelSlideListener(onSlideListener());
         slidingLayout.getChildAt(1).setOnClickListener(null);
 
-        btnPlayPause = (ImageButton)findViewById(R.id.btn_play_pause);
+        btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
 
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(myService.isPng()) {
+                if (myService.isPng()) {
                     myService.pausePlayer();
                     btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
                     Intent pauseIntent = new Intent(context, MyService.class);
                     pauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
                     startService(pauseIntent);
 
-                }
-                else {
+                } else {
                     myService.go();
                     btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                     Intent playIntent = new Intent(context, MyService.class);
@@ -106,16 +108,16 @@ public class MainActivity extends AppCompatActivity {
     public void initPermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             //if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
             //}
             //if (checkSelfPermission(Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.WAKE_LOCK}, 1);
+            requestPermissions(new String[]{Manifest.permission.WAKE_LOCK}, 1);
             //}
             //if (checkSelfPermission(Manifest.permission.MEDIA_CONTENT_CONTROL) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.MEDIA_CONTENT_CONTROL}, 1);
+            requestPermissions(new String[]{Manifest.permission.MEDIA_CONTENT_CONTROL}, 1);
             //}
             //if (checkSelfPermission(Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.INTERNET}, 1);
+            requestPermissions(new String[]{Manifest.permission.INTERNET}, 1);
             //}
         }
     }
@@ -129,13 +131,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPanelCollapsed(View view) {
-                if(myService.isPng())
+                if (myService.isPng())
                     btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
             }
 
             @Override
             public void onPanelExpanded(View view) {
-                if(myService.isPng())
+                if (myService.isPng())
                     btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
             }
 
@@ -154,13 +156,14 @@ public class MainActivity extends AppCompatActivity {
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            MyService.MusicBinder binder = (MyService.MusicBinder)service;
+            MyService.MusicBinder binder = (MyService.MusicBinder) service;
             //get service
             myService = binder.getService();
             //pass list
 
             musicBound = true;
         }
+
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             musicBound = false;
@@ -184,18 +187,32 @@ public class MainActivity extends AppCompatActivity {
             this.unbindService(musicConnection);
             musicBound = false;
         }
+
+    }
+
+    BroadcastReceiver broadcastReceiver = new MyBroadcast() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION))
+                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+            else if (intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION))
+                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(broadcastReceiver, new IntentFilter("PlayPause"));
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (intent.getAction() != null){
-            if(intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION))
-                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-            else if(intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION))
-                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+    protected void onPause() {
+        if (broadcastReceiver != null) {
+            unregisterReceiver(broadcastReceiver);
+            broadcastReceiver = null;
         }
+        super.onPause();
     }
-
 
 }
