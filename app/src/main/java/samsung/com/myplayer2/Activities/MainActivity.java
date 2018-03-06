@@ -18,16 +18,16 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
-import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
-import samsung.com.myplayer2.Service.MyBroadcast;
 import samsung.com.myplayer2.Service.MyService;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent playintent;
     ImageButton btnPlayPause;
     private Intent PPIntent;
+    TextView casi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,10 @@ public class MainActivity extends AppCompatActivity {
         initPermission();
 
         context = this;
+
+        registerReceiver(myBroadcast, new IntentFilter("ToActivity"));
+
+        casi = (TextView)findViewById(R.id.artist);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager1);
 
@@ -90,16 +95,16 @@ public class MainActivity extends AppCompatActivity {
                 if (myService.isPng()) {
                     myService.pausePlayer();
                     btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-                    Intent pauseIntent = new Intent(context, MyService.class);
-                    pauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
-                    startService(pauseIntent);
+                    Intent pauseIntent = new Intent("ToService");
+                    pauseIntent.putExtra("key", "pause");
+                    sendBroadcast(pauseIntent);
 
                 } else {
                     myService.go();
                     btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                    Intent playIntent = new Intent(context, MyService.class);
-                    playIntent.setAction(Constants.ACTION.PLAY_ACTION);
-                    startService(playIntent);
+                    Intent playIntent = new Intent("ToService");
+                    playIntent.putExtra("key", "play");
+                    sendBroadcast(playIntent);
                 }
             }
         });
@@ -177,7 +182,9 @@ public class MainActivity extends AppCompatActivity {
         playintent = new Intent(this, MyService.class);
         this.startService(playintent);
         this.bindService(playintent, musicConnection, Context.BIND_AUTO_CREATE);
+        registerReceiver(myBroadcast, new IntentFilter("ToActivity"));
     }
+
 
     @Override
     public void onDestroy() {
@@ -187,32 +194,29 @@ public class MainActivity extends AppCompatActivity {
             this.unbindService(musicConnection);
             musicBound = false;
         }
-
     }
-
-    BroadcastReceiver broadcastReceiver = new MyBroadcast() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION))
-                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-            else if (intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION))
-                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-        }
-    };
 
     @Override
     protected void onResume() {
+        registerReceiver(myBroadcast, new IntentFilter("ToActivity"));
         super.onResume();
-        registerReceiver(broadcastReceiver, new IntentFilter("PlayPause"));
     }
 
     @Override
     protected void onPause() {
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
-        }
+        unregisterReceiver(myBroadcast);
         super.onPause();
     }
 
+    BroadcastReceiver myBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String od = intent.getStringExtra("key");
+            Toast.makeText(context, od, Toast.LENGTH_SHORT).show();
+            if(od.equals("pause"))
+                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+            else if(od.equals("play"))
+                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+        }
+    };
 }

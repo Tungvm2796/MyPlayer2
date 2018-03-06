@@ -31,7 +31,6 @@
             android:name=".Service.MyService"
             android:enabled="true"></service>
 
-        <receiver android:name=".Service.MyBroadcast"></receiver>
     </application>
 
 </manifest>

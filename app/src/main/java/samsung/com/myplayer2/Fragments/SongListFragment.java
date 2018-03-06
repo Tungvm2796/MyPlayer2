@@ -140,7 +140,7 @@ public class SongListFragment extends Fragment {
                 btnPP.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 myService.setSong(position);
                 myService.playSong();
-                UpdateTimeSong();
+                //UpdateTimeSong();
                 //SetTimeTotal();
                 textTitle.setText(myService.getSongTitle());
 

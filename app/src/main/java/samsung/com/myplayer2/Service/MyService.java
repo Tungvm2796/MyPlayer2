@@ -4,18 +4,27 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.session.MediaController;
+import android.media.session.MediaSession;
+import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.service.notification.StatusBarNotification;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -54,7 +63,14 @@ public class MyService extends Service implements
     private boolean shuffle = false;
     private Random rand;
 
-    private boolean isBind;
+    private boolean isBind = false;
+
+    public Context context;
+
+    private MediaSession mediaSession;
+    private MediaSessionManager mediaSessionManager;
+    private MediaController mediaController;
+
 
     public void onCreate() {
         //create the service
@@ -66,9 +82,16 @@ public class MyService extends Service implements
         //create player
         player = new MediaPlayer();
 
+        context = this;
+
+        registerReceiver(myBroadcast, new IntentFilter("ToService"));
 
         //initialize
         initMusicPlayer();
+
+        mediaSessionManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
+        mediaSession = new MediaSession(this, "LOG_TAG");
+
     }
 
     @Override
@@ -77,15 +100,21 @@ public class MyService extends Service implements
             if (intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION)) {
                 pausePlayer();
                 showNoti(2);
-                Intent paintent = new Intent(this, MainActivity.class);
-                paintent.setAction(Constants.ACTION.PAUSE_ACTION);
-                sendBroadcast(paintent);
+
+                    Intent intent1 = new Intent();
+                    intent1.setAction("ToActivity");
+                    intent1.putExtra("key", "pause");
+                    sendBroadcast(intent1);
+
             } else if (intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION)) {
                 go();
                 showNoti(1);
-                Intent plintent = new Intent(this, MainActivity.class);
-                plintent.setAction(Constants.ACTION.PLAY_ACTION);
-                sendBroadcast(plintent);
+
+                    Intent intent2 = new Intent();
+                    intent2.setAction("ToActivity");
+                    intent2.putExtra("key", "play");
+                    sendBroadcast(intent2);
+
             } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
                 if (!player.isPlaying()) {
                     if (isBind = true)
@@ -94,9 +123,16 @@ public class MyService extends Service implements
                         onDestroy();
                     }
                 }
+            } else if (intent.getAction().toString().equals(Constants.ACTION.MPAUSE_ACTION)) {
+                pausePlayer();
+                showNoti(2);
+            } else if (intent.getAction().toString().equals(Constants.ACTION.MPLAY_ACTION)) {
+                go();
+                showNoti(1);
             }
+
         }
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
 
@@ -216,13 +252,18 @@ public class MyService extends Service implements
 
         Notification.Builder builder = new Notification.Builder(this);
 
+        Notification.MediaStyle style = new Notification.MediaStyle();
+
         builder.setContentIntent(pendInt)
                 .setSmallIcon(R.drawable.ic_play_circle_outline_white_24dp)
                 .setTicker(songTitle)
                 .setOngoing(true)
                 .setContentTitle("Now Playing")
                 .setContentText(songTitle)
-                .setAutoCancel(true);
+                .setAutoCancel(true)
+                .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_STOP))
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+        ;
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notice_layout);
         switch (casenum) {
             case 1:
@@ -235,6 +276,8 @@ public class MyService extends Service implements
                 break;
         }
 
+        contentView.setTextViewText(R.id.song_name, songTitle);
+        contentView.setTextViewText(R.id.song_artist, songArtist);
         contentView.setOnClickPendingIntent(R.id.exit_notice, pcloseIntent);
 
 
@@ -269,7 +312,7 @@ public class MyService extends Service implements
         player.start();
     }
 
-    public int CountNoti(){
+    public int CountNoti() {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         StatusBarNotification[] notifications = notificationManager.getActiveNotifications();
         int count = 0;
@@ -313,9 +356,11 @@ public class MyService extends Service implements
 
     @Override
     public void onDestroy() {
+        unregisterReceiver(myBroadcast);
         stopForeground(true);
         player.stop();
         player.release();
+        stopSelf();
     }
 
     //toggle shuffle
@@ -328,7 +373,25 @@ public class MyService extends Service implements
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
 
-        if(CountNoti() == 0)
+        if (CountNoti() == 0)
             stopSelf();
     }
+
+    private void sendOd(String msg) {
+        Intent intent = new Intent("ppcontrol");
+
+        intent.putExtra("key", msg);
+        this.sendBroadcast(intent);
+    }
+
+    BroadcastReceiver myBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Toast.makeText(getApplicationContext(), "Service received", Toast.LENGTH_SHORT).show();
+            if (intent.getStringExtra("key").equals("pause"))
+                showNoti(2);
+            else if (intent.getStringExtra("key").equals("play"))
+                showNoti(1);
+        }
+    };
 }
