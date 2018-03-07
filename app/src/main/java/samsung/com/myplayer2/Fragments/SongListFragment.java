@@ -6,13 +6,11 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -68,6 +66,7 @@ public class SongListFragment extends Fragment {
     private Intent playintent;
     ImageButton btnPP;
     TextView textTitle;
+    TextView textArtist;
     TextView textTimeSong;
     TextView textTotal;
     SeekBar seekBar;
@@ -84,8 +83,8 @@ public class SongListFragment extends Fragment {
             @Override
             public void run() {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-                textTimeSong.setText(simpleDateFormat.format(myService.getCurPos()));
-                seekBar.setProgress(myService.getCurPos());
+                textTimeSong.setText(simpleDateFormat.format(myService.getPosn()));
+                seekBar.setProgress(myService.getPosn());
                 handler.postDelayed(this, 500);
             }
         }, 100);
@@ -96,19 +95,31 @@ public class SongListFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_song_list, container, false);
+
         songView = (ListView) v.findViewById(R.id.song_list);
+
         btnPP = (ImageButton) getActivity().findViewById(R.id.btn_play_pause);
-        textTitle = (TextView) getActivity().findViewById(R.id.title);
+
         textTimeSong = (TextView) getActivity().findViewById(R.id.time_song);
+
         textTotal = (TextView) getActivity().findViewById(R.id.time_total);
+
         seekBar = (SeekBar) getActivity().findViewById(R.id.seekbar_song);
+
         animation = AnimationUtils.loadAnimation(getActivity(), R.anim.disc_rolate);
+
         SongList = new ArrayList<Song>();
+
         context = super.getActivity();
+
         getSongList();
+
         final SongAdapter songAdt = new SongAdapter(getActivity(), SongList);
+
         songView.setAdapter(songAdt);
+
         searchbox = (EditText) v.findViewById(R.id.searchbox);
+
         searchbox.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -140,10 +151,26 @@ public class SongListFragment extends Fragment {
                 btnPP.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 myService.setSong(position);
                 myService.playSong();
-                //UpdateTimeSong();
-                //SetTimeTotal();
-                textTitle.setText(myService.getSongTitle());
+                SetTimeTotal();
+                UpdateTimeSong();
 
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                myService.seek(seekBar.getProgress());
             }
         });
 
@@ -240,23 +267,6 @@ public class SongListFragment extends Fragment {
             getActivity().unbindService(musicConnection);
             musicBound = false;
         }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("cursongname", myService.getSongTitle());
-        editor.commit();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        String ret = settings.getString("cursongname", "0");
-        textTitle.setText(ret);
     }
 
 }

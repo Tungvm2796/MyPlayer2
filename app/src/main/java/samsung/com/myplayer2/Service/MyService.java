@@ -26,6 +26,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -102,7 +103,7 @@ public class MyService extends Service implements
                 showNoti(2);
 
                     Intent intent1 = new Intent();
-                    intent1.setAction("ToActivity");
+                    intent1.setAction("PlayPause");
                     intent1.putExtra("key", "pause");
                     sendBroadcast(intent1);
 
@@ -111,7 +112,7 @@ public class MyService extends Service implements
                 showNoti(1);
 
                     Intent intent2 = new Intent();
-                    intent2.setAction("ToActivity");
+                    intent2.setAction("PlayPause");
                     intent2.putExtra("key", "play");
                     sendBroadcast(intent2);
 
@@ -196,7 +197,19 @@ public class MyService extends Service implements
         } catch (Exception e) {
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
-        player.prepareAsync();
+
+        Intent setup = new Intent();
+        setup.setAction("StartPlay");
+        setup.putExtra("title", songTitle);
+        setup.putExtra("artist", songArtist);
+        sendBroadcast(setup);
+
+        try {
+            player.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     //set the song
@@ -324,12 +337,11 @@ public class MyService extends Service implements
         return count;
     }
 
-    public int getCurPos() {
-        return player.getCurrentPosition();
-    }
-
     public String getSongTitle() {
         return songTitle;
+    }
+    public String getSongArtist() {
+        return songArtist;
     }
 
     //skip to previous track

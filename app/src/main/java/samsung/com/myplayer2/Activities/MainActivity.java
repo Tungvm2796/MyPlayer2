@@ -7,9 +7,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
@@ -18,11 +21,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
@@ -48,7 +53,30 @@ public class MainActivity extends AppCompatActivity {
     private Intent playintent;
     ImageButton btnPlayPause;
     private Intent PPIntent;
-    TextView casi;
+    TextView txtArtist;
+    TextView txtTitle;
+    TextView txtTimeSong;
+    TextView txtTotal;
+    SeekBar seekBar;
+
+    public void SetTimeTotal() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+        txtTotal.setText(simpleDateFormat.format(myService.getDur()));
+        seekBar.setMax(myService.getDur());
+    }
+
+    public void UpdateTimeSong() {
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+                txtTimeSong.setText(simpleDateFormat.format(myService.getPosn()));
+                seekBar.setProgress(myService.getPosn());
+                handler.postDelayed(this, 500);
+            }
+        }, 100);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +88,18 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
 
-        registerReceiver(myBroadcast, new IntentFilter("ToActivity"));
+        IntentFilter toActivity = new IntentFilter();
+        toActivity.addAction("PlayPause");
+        toActivity.addAction("StartPlay");
+        registerReceiver(myBroadcast, toActivity);
 
-        casi = (TextView)findViewById(R.id.artist);
+        txtArtist = (TextView)findViewById(R.id.artist);
+
+        txtTitle = (TextView)findViewById(R.id.title);
+
+        txtTimeSong = (TextView)findViewById(R.id.time_song);
+
+        txtTotal = (TextView)findViewById(R.id.time_total);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager1);
 
@@ -198,7 +235,16 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        registerReceiver(myBroadcast, new IntentFilter("ToActivity"));
+        IntentFilter toActivity = new IntentFilter();
+        toActivity.addAction("PlayPause");
+        toActivity.addAction("StartPlay");
+        registerReceiver(myBroadcast, toActivity);
+
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        String savetitle = settings.getString("cursongname", "0");
+        String saveartist = settings.getString("curartist", "0");
+        txtTitle.setText(savetitle);
+        txtArtist.setText(saveartist);
         super.onResume();
     }
 
@@ -208,15 +254,31 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("cursongname", myService.getSongTitle());
+        editor.putString("cursartist", myService.getSongArtist());
+        editor.commit();
+    }
+
     BroadcastReceiver myBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String od = intent.getStringExtra("key");
-            Toast.makeText(context, od, Toast.LENGTH_SHORT).show();
-            if(od.equals("pause"))
-                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-            else if(od.equals("play"))
-                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+            if(intent.getAction().toString().equals("PlayPause")) {
+                String od = intent.getStringExtra("key");
+                Toast.makeText(context, od, Toast.LENGTH_SHORT).show();
+                if (od.equals("pause"))
+                    btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+                else if (od.equals("play"))
+                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+            }
+            else if(intent.getAction().toString().equals("StartPlay")){
+                txtTitle.setText(intent.getStringExtra("title"));
+                txtArtist.setText(intent.getStringExtra("artist"));
+            }
         }
     };
 }
