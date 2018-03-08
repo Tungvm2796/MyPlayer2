@@ -55,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
     private Intent PPIntent;
     TextView txtArtist;
     TextView txtTitle;
-    TextView txtTimeSong;
-    TextView txtTotal;
-    SeekBar seekBar;
+    public static TextView txtTimeSong;
+    public static TextView txtTotal;
+    public static SeekBar seekBar;
 
     public void SetTimeTotal() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
@@ -93,13 +93,41 @@ public class MainActivity extends AppCompatActivity {
         toActivity.addAction("StartPlay");
         registerReceiver(myBroadcast, toActivity);
 
-        txtArtist = (TextView)findViewById(R.id.artist);
+        initView();
 
-        txtTitle = (TextView)findViewById(R.id.title);
+        btnPlayPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (myService.isPng()) {
+                    myService.pausePlayer();
+                    btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+                    Intent pauseIntent = new Intent("ToService");
+                    pauseIntent.setAction("SvPlayPause");
+                    pauseIntent.putExtra("key", "pause");
+                    sendBroadcast(pauseIntent);
 
-        txtTimeSong = (TextView)findViewById(R.id.time_song);
+                } else {
+                    myService.go();
+                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                    Intent playIntent = new Intent("ToService");
+                    playIntent.setAction("SvPlayPause");
+                    playIntent.putExtra("key", "play");
+                    sendBroadcast(playIntent);
+                }
+            }
+        });
+    }
 
-        txtTotal = (TextView)findViewById(R.id.time_total);
+    private void initView() {
+        txtArtist = (TextView) findViewById(R.id.artist);
+
+        txtTitle = (TextView) findViewById(R.id.title);
+
+        txtTimeSong = (TextView) findViewById(R.id.time_song);
+
+        txtTotal = (TextView) findViewById(R.id.time_total);
+
+        seekBar = (SeekBar)findViewById(R.id.seekbar_song);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager1);
 
@@ -125,26 +153,6 @@ public class MainActivity extends AppCompatActivity {
         slidingLayout.getChildAt(1).setOnClickListener(null);
 
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
-
-        btnPlayPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (myService.isPng()) {
-                    myService.pausePlayer();
-                    btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-                    Intent pauseIntent = new Intent("ToService");
-                    pauseIntent.putExtra("key", "pause");
-                    sendBroadcast(pauseIntent);
-
-                } else {
-                    myService.go();
-                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                    Intent playIntent = new Intent("ToService");
-                    playIntent.putExtra("key", "play");
-                    sendBroadcast(playIntent);
-                }
-            }
-        });
     }
 
     public void initPermission() {
@@ -204,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
             //pass list
 
             musicBound = true;
+            myService.setBind(1);
         }
 
         @Override
@@ -235,16 +244,28 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+
         IntentFilter toActivity = new IntentFilter();
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
         registerReceiver(myBroadcast, toActivity);
 
+        try {
+            if (myService.isPng())
+                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+            else
+                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        String savetitle = settings.getString("cursongname", "0");
-        String saveartist = settings.getString("curartist", "0");
-        txtTitle.setText(savetitle);
-        txtArtist.setText(saveartist);
+        String saveTitle = settings.getString("curSongName", "0");
+        String saveArtist = settings.getString("curArtist", "0");
+        txtTitle.setText(saveTitle);
+        txtArtist.setText(saveArtist);
+
+
         super.onResume();
     }
 
@@ -259,23 +280,22 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = settings.edit();
-        editor.putString("cursongname", myService.getSongTitle());
-        editor.putString("cursartist", myService.getSongArtist());
+        editor.putString("curSongName", myService.getSongTitle());
+        editor.putString("curArtist", myService.getSongArtist());
         editor.commit();
     }
 
     BroadcastReceiver myBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().toString().equals("PlayPause")) {
+            if (intent.getAction().toString().equals("PlayPause")) {
                 String od = intent.getStringExtra("key");
                 Toast.makeText(context, od, Toast.LENGTH_SHORT).show();
                 if (od.equals("pause"))
                     btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
                 else if (od.equals("play"))
                     btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-            }
-            else if(intent.getAction().toString().equals("StartPlay")){
+            } else if (intent.getAction().toString().equals("StartPlay")) {
                 txtTitle.setText(intent.getStringExtra("title"));
                 txtArtist.setText(intent.getStringExtra("artist"));
             }

@@ -6,11 +6,13 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
@@ -106,19 +108,19 @@ public class SongListFragment extends Fragment {
 
         seekBar = (SeekBar) getActivity().findViewById(R.id.seekbar_song);
 
+        searchbox = (EditText) v.findViewById(R.id.searchbox);
+
         animation = AnimationUtils.loadAnimation(getActivity(), R.anim.disc_rolate);
 
-        SongList = new ArrayList<Song>();
-
         context = super.getActivity();
+
+        SongList = new ArrayList<Song>();
 
         getSongList();
 
         final SongAdapter songAdt = new SongAdapter(getActivity(), SongList);
 
         songView.setAdapter(songAdt);
-
-        searchbox = (EditText) v.findViewById(R.id.searchbox);
 
         searchbox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -145,15 +147,19 @@ public class SongListFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
             }
         });
+
         songView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 btnPP.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                myService.setSong(position);
-                myService.playSong();
-                SetTimeTotal();
-                UpdateTimeSong();
-
+                //myService.setSong(position);
+                //myService.playSong();
+                //SetTimeTotal();
+                //UpdateTimeSong();
+                Intent play = new Intent("ToService");
+                play.setAction("SvPlayOne");
+                play.putExtra("pos", position);
+                getActivity().sendBroadcast(play);
             }
         });
 
@@ -269,4 +275,11 @@ public class SongListFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = settings.edit();
+
+    }
 }

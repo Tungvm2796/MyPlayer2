@@ -11,11 +11,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
-import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.service.notification.StatusBarNotification;
@@ -24,9 +22,13 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -44,10 +46,10 @@ import samsung.com.myplayer2.R;
 
 public class MyService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener {
+        MediaPlayer.OnCompletionListener, SeekBar.OnSeekBarChangeListener {
 
     //media player
-    private MediaPlayer player;
+    public static MediaPlayer player;
     //song list
     private ArrayList<Song> songs;
     //current position
@@ -64,14 +66,13 @@ public class MyService extends Service implements
     private boolean shuffle = false;
     private Random rand;
 
-    private boolean isBind = false;
+    public boolean isBind;
 
     public Context context;
 
-    private MediaSession mediaSession;
-    private MediaSessionManager mediaSessionManager;
-    private MediaController mediaController;
-
+    public static WeakReference<SeekBar> seekPro;
+    public static WeakReference<TextView> txtTotal;
+    public static WeakReference<TextView> txtCurTime;
 
     public void onCreate() {
         //create the service
@@ -85,14 +86,13 @@ public class MyService extends Service implements
 
         context = this;
 
-        registerReceiver(myBroadcast, new IntentFilter("ToService"));
+        IntentFilter svintent = new IntentFilter("ToService");
+        svintent.addAction("SvPlayPause");
+        svintent.addAction("SvPlayOne");
+        registerReceiver(myBroadcast, svintent);
 
         //initialize
         initMusicPlayer();
-
-        mediaSessionManager = (MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
-        mediaSession = new MediaSession(this, "LOG_TAG");
-
     }
 
     @Override
@@ -102,19 +102,23 @@ public class MyService extends Service implements
                 pausePlayer();
                 showNoti(2);
 
-                    Intent intent1 = new Intent();
-                    intent1.setAction("PlayPause");
-                    intent1.putExtra("key", "pause");
-                    sendBroadcast(intent1);
+                Intent intent1 = new Intent();
+                intent1.setAction("PlayPause");
+                intent1.putExtra("key", "pause");
+                sendBroadcast(intent1);
+
+                progressHandler.removeCallbacks(run);
 
             } else if (intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION)) {
                 go();
                 showNoti(1);
 
-                    Intent intent2 = new Intent();
-                    intent2.setAction("PlayPause");
-                    intent2.putExtra("key", "play");
-                    sendBroadcast(intent2);
+                Intent intent2 = new Intent();
+                intent2.setAction("PlayPause");
+                intent2.putExtra("key", "play");
+                sendBroadcast(intent2);
+
+                updateProgress();
 
             } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
                 if (!player.isPlaying()) {
@@ -124,18 +128,19 @@ public class MyService extends Service implements
                         onDestroy();
                     }
                 }
-            } else if (intent.getAction().toString().equals(Constants.ACTION.MPAUSE_ACTION)) {
-                pausePlayer();
-                showNoti(2);
-            } else if (intent.getAction().toString().equals(Constants.ACTION.MPLAY_ACTION)) {
-                go();
-                showNoti(1);
             }
-
         }
+
+        initUI();
+
         return START_STICKY;
     }
 
+    public void initUI(){
+        seekPro = new WeakReference<>(MainActivity.seekBar);
+        txtCurTime = new WeakReference<>(MainActivity.txtTimeSong);
+        txtTotal = new WeakReference<>(MainActivity.txtTotal);
+    }
 
     public void initMusicPlayer() {
 
@@ -164,14 +169,12 @@ public class MyService extends Service implements
     //activity will bind to service
     @Override
     public IBinder onBind(Intent intent) {
-        isBind = true;
         return musicBind;
     }
 
     //release resources when unbind
     @Override
     public boolean onUnbind(Intent intent) {
-        isBind = false;
         return false;
     }
 
@@ -198,32 +201,32 @@ public class MyService extends Service implements
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
 
-        Intent setup = new Intent();
-        setup.setAction("StartPlay");
-        setup.putExtra("title", songTitle);
-        setup.putExtra("artist", songArtist);
-        sendBroadcast(setup);
-
         try {
             player.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        Intent setup = new Intent();
+        setup.setAction("StartPlay");
+        setup.putExtra("title", songTitle);
+        setup.putExtra("artist", songArtist);
+        sendBroadcast(setup);
+
+        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+                updateProgress();
+                showNoti(1);
+            }
+        });
+
     }
 
     //set the song
     public void setSong(int songIndex) {
         songPosn = songIndex;
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        //check if playback has reached the end of a track
-        if (player.getCurrentPosition() > 0) {
-            mp.reset();
-            playNext();
-        }
     }
 
     @Override
@@ -237,6 +240,7 @@ public class MyService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
+        updateProgress();
         showNoti(1);
     }
 
@@ -258,10 +262,6 @@ public class MyService extends Service implements
         Intent closeIntent = new Intent(this, MyService.class);
         closeIntent.setAction(Constants.ACTION.EXIT_ACTION);
         PendingIntent pcloseIntent = PendingIntent.getService(this, 0, closeIntent, 0);
-
-        Intent mainpauseIntent = new Intent(this, MainActivity.class);
-        mainpauseIntent.setAction(Constants.ACTION.PAUSE_ACTION);
-        PendingIntent pmainpauseIntent = PendingIntent.getActivity(this, 0, mainpauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification.Builder builder = new Notification.Builder(this);
 
@@ -340,6 +340,7 @@ public class MyService extends Service implements
     public String getSongTitle() {
         return songTitle;
     }
+
     public String getSongArtist() {
         return songArtist;
     }
@@ -381,9 +382,18 @@ public class MyService extends Service implements
         else shuffle = true;
     }
 
+    public void setBind(int i) {
+        if (i == 1)
+            isBind = true;
+        else
+            isBind = false;
+    }
+
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
+
+        setBind(0);
 
         if (CountNoti() == 0)
             stopSelf();
@@ -399,11 +409,78 @@ public class MyService extends Service implements
     BroadcastReceiver myBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(getApplicationContext(), "Service received", Toast.LENGTH_SHORT).show();
-            if (intent.getStringExtra("key").equals("pause"))
-                showNoti(2);
-            else if (intent.getStringExtra("key").equals("play"))
-                showNoti(1);
+            if (intent.getAction().toString().equals("SvPlayPause")) {
+                if (intent.getStringExtra("key").equals("pause")) {
+                    Toast.makeText(getApplicationContext(), "Service received: Pause", Toast.LENGTH_SHORT).show();
+                    showNoti(2);
+                    progressHandler.removeCallbacks(run);
+                } else if (intent.getStringExtra("key").equals("play")) {
+                    Toast.makeText(getApplicationContext(), "Service received: Play", Toast.LENGTH_SHORT).show();
+                    showNoti(1);
+                    updateProgress();
+                }
+            } else if (intent.getAction().toString().equals("SvPlayOne")) {
+                Toast.makeText(getApplicationContext(), "Service received: Play One", Toast.LENGTH_SHORT).show();
+                Integer posn = intent.getIntExtra("pos", 0);
+                setSong(posn);
+                playSong();
+            }
         }
     };
+
+    public void updateProgress(){
+        try {
+            progressHandler.postDelayed(run, 100);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    static Handler progressHandler = new Handler();
+
+    static Runnable run = new Runnable() {
+        @Override
+        public void run() {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+
+            try {
+                seekPro.get().setMax(player.getDuration());
+                txtTotal.get().setText(simpleDateFormat.format(player.getDuration()));
+                txtCurTime.get().setText(simpleDateFormat.format(player.getCurrentPosition()));
+                seekPro.get().setProgress(player.getCurrentPosition());
+                progressHandler.postDelayed(this, 500);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+
+        }
+    };
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        //check if playback has reached the end of a track
+        seekPro.get().setProgress(0);
+        progressHandler.removeCallbacks(run);
+        if (player.getCurrentPosition() > 0) {
+            mp.reset();
+            playNext();
+        }
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        progressHandler.removeCallbacks(run);
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        progressHandler.removeCallbacks(run);
+        seek(seekBar.getProgress());
+        updateProgress();
+    }
 }
