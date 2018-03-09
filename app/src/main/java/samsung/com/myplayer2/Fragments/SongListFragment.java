@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -183,6 +186,20 @@ public class SongListFragment extends Fragment {
         return v;
     }
 
+    Bitmap GetBitmap(String filePath){
+        Bitmap image;
+        MediaMetadataRetriever mData = new MediaMetadataRetriever();
+        mData.setDataSource(filePath);
+        try {
+            byte art[] = mData.getEmbeddedPicture();
+            image= BitmapFactory.decodeByteArray(art, 0, art.length);
+        }
+        catch (Exception e){
+            image=null;
+        }
+        return image;
+    }
+
     public void getSongList() {
         //retrieve song info
         ContentResolver musicResolver = getActivity().getContentResolver();
@@ -201,9 +218,10 @@ public class SongListFragment extends Fragment {
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtis = musicCursor.getString(artisColumn);
                 String thisData = musicCursor.getString(dataColumn);
-                Uri solidUri = Uri.parse("content://media/external/audio/");
+                Uri solidUri = Uri.parse("content://media/external/audio/albumart");
                 Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
-                SongList.add(new Song(thisId, thisTitle, thisArtis, null, thisData));
+                Bitmap songimg = GetBitmap(thisData);
+                SongList.add(new Song(thisId, thisTitle, thisArtis, null, songimg, thisData));
             }
             while (musicCursor.moveToNext());
         }
@@ -230,8 +248,9 @@ public class SongListFragment extends Fragment {
                 String thisData = musicCursor.getString(dataColumn);
                 Uri solidUri = Uri.parse("content://media/external/audio/");
                 Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
+                Bitmap songimg = GetBitmap(thisData);
                 if (thisTitle.toLowerCase().contains(entry))
-                    SongList.add(new Song(thisId, thisTitle, thisArtis, null, thisData));
+                    SongList.add(new Song(thisId, thisTitle, thisArtis, null, songimg, thisData));
             }
             while (musicCursor.moveToNext());
         }
