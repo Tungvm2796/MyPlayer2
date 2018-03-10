@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
         txtTotal = (TextView) findViewById(R.id.time_total);
 
-        seekBar = (SeekBar)findViewById(R.id.seekbar_song);
+        seekBar = (SeekBar) findViewById(R.id.seekbar_song);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager1);
 
@@ -266,7 +266,6 @@ public class MainActivity extends AppCompatActivity {
         String saveArtist = settings.getString("curArtist", "0");
         txtTitle.setText(saveTitle);
         txtArtist.setText(saveArtist);
-
 
         super.onResume();
     }

@@ -6,18 +6,20 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -25,10 +27,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import samsung.com.myplayer2.Adapter.SongAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
@@ -59,7 +59,7 @@ public class SongListFragment extends Fragment {
     }
 
     private ArrayList<Song> SongList;
-    private ListView songView;
+    private RecyclerView songView;
     EditText searchbox;
     Context context;
     Animation animation;
@@ -69,7 +69,7 @@ public class SongListFragment extends Fragment {
     MyService myService;
     private boolean musicBound = false;
     private Intent playintent;
-    ImageButton btnPP;
+    public static ImageButton btnPP;
     TextView textTitle;
     TextView textArtist;
     TextView textTimeSong;
@@ -101,7 +101,7 @@ public class SongListFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_song_list, container, false);
 
-        songView = (ListView) v.findViewById(R.id.song_list);
+        songView = (RecyclerView) v.findViewById(R.id.song_list);
 
         btnPP = (ImageButton) getActivity().findViewById(R.id.btn_play_pause);
 
@@ -121,8 +121,10 @@ public class SongListFragment extends Fragment {
 
         getSongList();
 
-        final SongAdapter songAdt = new SongAdapter(getActivity(), SongList);
-
+        final RecyclerSongAdapter songAdt = new RecyclerSongAdapter(SongList);
+        RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
+        songView.setLayoutManager(mManager);
+        songView.setItemAnimator(new DefaultItemAnimator());
         songView.setAdapter(songAdt);
 
         searchbox.addTextChangedListener(new TextWatcher() {
@@ -135,34 +137,19 @@ public class SongListFragment extends Fragment {
                 if (charSequence.length() == 0) {
                     SongList.clear();
                     getSongList();
-                    SongAdapter songAdapter1 = new SongAdapter(getActivity(), SongList);
+                    RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(SongList);
                     songView.setAdapter(songAdapter1);
                 } else {
                     songView.setAdapter(null);
                     SongList.clear();
                     getSongByName(charSequence.toString().toLowerCase());
-                    SongAdapter songAdapter2 = new SongAdapter(getActivity(), SongList);
+                    RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(SongList);
                     songView.setAdapter(songAdapter2);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-            }
-        });
-
-        songView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                btnPP.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                //myService.setSong(position);
-                //myService.playSong();
-                //SetTimeTotal();
-                //UpdateTimeSong();
-                Intent play = new Intent("ToService");
-                play.setAction("SvPlayOne");
-                play.putExtra("pos", position);
-                getActivity().sendBroadcast(play);
             }
         });
 
@@ -186,18 +173,38 @@ public class SongListFragment extends Fragment {
         return v;
     }
 
-    Bitmap GetBitmap(String filePath){
+    Bitmap GetBitmap(String filePath) {
         Bitmap image;
         MediaMetadataRetriever mData = new MediaMetadataRetriever();
         mData.setDataSource(filePath);
         try {
             byte art[] = mData.getEmbeddedPicture();
-            image= BitmapFactory.decodeByteArray(art, 0, art.length);
-        }
-        catch (Exception e){
-            image=null;
+            image = BitmapFactory.decodeByteArray(art, 0, art.length);
+        } catch (Exception e) {
+            image = null;
         }
         return image;
+    }
+
+    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
+        if (bm == null)
+            return bm;
+        else {
+            int width = bm.getWidth();
+            int height = bm.getHeight();
+            float scaleWidth = ((float) newWidth) / width;
+            float scaleHeight = ((float) newHeight) / height;
+            // CREATE A MATRIX FOR THE MANIPULATION
+            Matrix matrix = new Matrix();
+            // RESIZE THE BIT MAP
+            matrix.postScale(scaleWidth, scaleHeight);
+
+            // "RECREATE" THE NEW BITMAP
+            Bitmap resizedBitmap = Bitmap.createBitmap(
+                    bm, 0, 0, width, height, matrix, false);
+            bm.recycle();
+            return resizedBitmap;
+        }
     }
 
     public void getSongList() {
@@ -221,11 +228,13 @@ public class SongListFragment extends Fragment {
                 Uri solidUri = Uri.parse("content://media/external/audio/albumart");
                 Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
                 Bitmap songimg = GetBitmap(thisData);
-                SongList.add(new Song(thisId, thisTitle, thisArtis, null, songimg, thisData));
+                Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
+                SongList.add(new Song(thisId, thisTitle, thisArtis, null, lastimg, thisData));
             }
             while (musicCursor.moveToNext());
         }
         SortByName();
+        musicCursor.close();
     }
 
     public void getSongByName(String entry) {
@@ -249,12 +258,14 @@ public class SongListFragment extends Fragment {
                 Uri solidUri = Uri.parse("content://media/external/audio/");
                 Uri songUri = ContentUris.withAppendedId(solidUri, thisId);
                 Bitmap songimg = GetBitmap(thisData);
+                Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
                 if (thisTitle.toLowerCase().contains(entry))
-                    SongList.add(new Song(thisId, thisTitle, thisArtis, null, songimg, thisData));
+                    SongList.add(new Song(thisId, thisTitle, thisArtis, null, lastimg, thisData));
             }
             while (musicCursor.moveToNext());
         }
         SortByName();
+        musicCursor.close();
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
@@ -292,13 +303,5 @@ public class SongListFragment extends Fragment {
             getActivity().unbindService(musicConnection);
             musicBound = false;
         }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = settings.edit();
-
     }
 }

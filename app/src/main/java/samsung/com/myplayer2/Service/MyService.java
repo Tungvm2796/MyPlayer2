@@ -21,6 +21,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ import java.util.Random;
 import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
+import samsung.com.myplayer2.Fragments.SongListFragment;
 import samsung.com.myplayer2.R;
 
 /*
@@ -73,6 +75,7 @@ public class MyService extends Service implements
     public static WeakReference<SeekBar> seekPro;
     public static WeakReference<TextView> txtTotal;
     public static WeakReference<TextView> txtCurTime;
+    public static WeakReference<ImageButton> btnPayPause;
 
     public void onCreate() {
         //create the service
@@ -136,10 +139,11 @@ public class MyService extends Service implements
         return START_STICKY;
     }
 
-    public void initUI(){
+    public void initUI() {
         seekPro = new WeakReference<>(MainActivity.seekBar);
         txtCurTime = new WeakReference<>(MainActivity.txtTimeSong);
         txtTotal = new WeakReference<>(MainActivity.txtTotal);
+        btnPayPause = new WeakReference<>(SongListFragment.btnPP);
     }
 
     public void initMusicPlayer() {
@@ -424,14 +428,15 @@ public class MyService extends Service implements
                 Integer posn = intent.getIntExtra("pos", 0);
                 setSong(posn);
                 playSong();
+                btnPayPause.get().setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
             }
         }
     };
 
-    public void updateProgress(){
+    public void updateProgress() {
         try {
             progressHandler.postDelayed(run, 100);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -449,7 +454,7 @@ public class MyService extends Service implements
                 txtCurTime.get().setText(simpleDateFormat.format(player.getCurrentPosition()));
                 seekPro.get().setProgress(player.getCurrentPosition());
                 progressHandler.postDelayed(this, 500);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

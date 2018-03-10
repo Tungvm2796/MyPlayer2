@@ -24,10 +24,10 @@
         sothree:umanoShadowHeight="4dp">
 
         <!-- MAIN CONTENT -->
-        <include layout="@layout/audio_content"/>
+        <include layout="@layout/audio_content" />
 
         <!-- SLIDING LAYOUT -->
-        <include layout="@layout/play_song"/>
+        <include layout="@layout/play_song" />
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
