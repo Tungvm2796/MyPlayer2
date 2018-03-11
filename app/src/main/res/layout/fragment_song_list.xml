@@ -24,6 +24,15 @@
             android:inputType="text"
             android:padding="5dp"
             android:textColor="#ffffff" />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/btnsearch"
+            android:src="@drawable/searchw"
+            android:scaleType="centerCrop"
+            android:background="@android:color/transparent"/>
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView
