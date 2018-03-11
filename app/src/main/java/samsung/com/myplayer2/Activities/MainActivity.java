@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter toActivity = new IntentFilter();
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
-        registerReceiver(myBroadcast, toActivity);
+        registerReceiver(myMainBroadcast, toActivity);
 
         initView();
 
@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
             //pass list
 
             musicBound = true;
-            myService.setBind(1);
         }
 
         @Override
@@ -230,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         playintent = new Intent(this, MyService.class);
         this.startService(playintent);
         this.bindService(playintent, musicConnection, Context.BIND_AUTO_CREATE);
-        registerReceiver(myBroadcast, new IntentFilter("ToActivity"));
+        registerReceiver(myMainBroadcast, new IntentFilter("ToActivity"));
     }
 
 
@@ -250,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter toActivity = new IntentFilter();
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
-        registerReceiver(myBroadcast, toActivity);
+        registerReceiver(myMainBroadcast, toActivity);
 
         try {
             if (myService.isPng())
@@ -272,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        unregisterReceiver(myBroadcast);
+        unregisterReceiver(myMainBroadcast);
         super.onPause();
     }
 
@@ -283,10 +282,10 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("curSongName", myService.getSongTitle());
         editor.putString("curArtist", myService.getSongArtist());
-        editor.commit();
+        editor.apply();
     }
 
-    BroadcastReceiver myBroadcast = new BroadcastReceiver() {
+    BroadcastReceiver myMainBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().toString().equals("PlayPause")) {

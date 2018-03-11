@@ -68,7 +68,7 @@ public class MyService extends Service implements
     private boolean shuffle = false;
     private Random rand;
 
-    public boolean isBind;
+    public static boolean bothRun = true;
 
     public Context context;
 
@@ -92,7 +92,7 @@ public class MyService extends Service implements
         IntentFilter svintent = new IntentFilter("ToService");
         svintent.addAction("SvPlayPause");
         svintent.addAction("SvPlayOne");
-        registerReceiver(myBroadcast, svintent);
+        registerReceiver(myServBroadcast, svintent);
 
         //initialize
         initMusicPlayer();
@@ -124,11 +124,15 @@ public class MyService extends Service implements
                 updateProgress();
 
             } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
-                if (!player.isPlaying()) {
-                    if (isBind = true)
+                if(!player.isPlaying()) {
+                    if (bothRun = true) {
                         stopForeground(true);
-                    else if (isBind = false) {
-                        onDestroy();
+                        checkBothRun();
+                    }
+                    else if (bothRun = false){
+                        stopForeground(true);
+                        unregisterReceiver(myServBroadcast);
+                        stopSelf();
                     }
                 }
             }
@@ -136,7 +140,7 @@ public class MyService extends Service implements
 
         initUI();
 
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     public void initUI() {
@@ -225,7 +229,6 @@ public class MyService extends Service implements
                 showNoti(1);
             }
         });
-
     }
 
     //set the song
@@ -371,46 +374,32 @@ public class MyService extends Service implements
         playSong();
     }
 
-    @Override
-    public void onDestroy() {
-        unregisterReceiver(myBroadcast);
-        stopForeground(true);
-        player.stop();
-        player.release();
-        stopSelf();
-    }
-
     //toggle shuffle
     public void setShuffle() {
         if (shuffle) shuffle = false;
         else shuffle = true;
     }
 
-    public void setBind(int i) {
-        if (i == 1)
-            isBind = true;
+    public boolean checkBothRun() {
+        if (bothRun) return false;
         else
-            isBind = false;
+            return true;
     }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
 
-        setBind(0);
-
-        if (CountNoti() == 0)
+        if(!player.isPlaying()){
+            stopForeground(true);
+            unregisterReceiver(myServBroadcast);
             stopSelf();
+        }else{ checkBothRun();}
+
+        Log.i("DKM", "Da kill task xxxxxxxxxxxxxxxxx ");
     }
 
-    private void sendOd(String msg) {
-        Intent intent = new Intent("ppcontrol");
-
-        intent.putExtra("key", msg);
-        this.sendBroadcast(intent);
-    }
-
-    BroadcastReceiver myBroadcast = new BroadcastReceiver() {
+    BroadcastReceiver myServBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().toString().equals("SvPlayPause")) {
@@ -453,7 +442,7 @@ public class MyService extends Service implements
                 txtTotal.get().setText(simpleDateFormat.format(player.getDuration()));
                 txtCurTime.get().setText(simpleDateFormat.format(player.getCurrentPosition()));
                 seekPro.get().setProgress(player.getCurrentPosition());
-                progressHandler.postDelayed(this, 500);
+                progressHandler.postDelayed(this, 100);
             } catch (Exception e) {
                 e.printStackTrace();
             }
