@@ -5,9 +5,51 @@
     tools:context="samsung.com.myplayer2.Fragments.AlbumFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/lin1"
+        android:orientation="vertical"
+        android:background="@android:color/holo_blue_bright">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="@string/hello_blank_fragment" />
+
+    <Button
+        android:layout_width="90dp"
+        android:layout_height="40dp"
+        android:id="@+id/btnlay"
+        android:text="Click me"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="450dp"
+        android:id="@+id/albumView"
+        android:scrollbars="vertical">
+
+    </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lin2"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        android:background="@android:color/darker_gray">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DKMM tao day:" />
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:id="@+id/btnlay2"
+            android:text="Click me to back"/>
+    </LinearLayout>
 
 </FrameLayout>
