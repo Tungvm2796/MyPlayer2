@@ -396,7 +396,7 @@ public class MyService extends Service implements
             stopSelf();
         }else{ checkBothRun();}
 
-        Log.i("DKM", "Da kill task xxxxxxxxxxxxxxxxx ");
+        Log.i("Thong bao", "Da kill task xxxxxxxxxxxxxxxxx ");
     }
 
     BroadcastReceiver myServBroadcast = new BroadcastReceiver() {
