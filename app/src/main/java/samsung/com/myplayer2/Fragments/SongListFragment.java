@@ -18,7 +18,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -134,7 +133,6 @@ public class SongListFragment extends Fragment {
         final RecyclerSongAdapter songAdt = new RecyclerSongAdapter(SongList);
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
         songView.setLayoutManager(mManager);
-        songView.setItemAnimator(new DefaultItemAnimator());
         songView.setAdapter(songAdt);
 
         searchbox.addTextChangedListener(new TextWatcher() {
@@ -282,13 +280,13 @@ public class SongListFragment extends Fragment {
         ContentResolver musicResolver = getActivity().getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-        final String album_id = MediaStore.Audio.Albums._ID;
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get collumn
             int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
             int artisColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            int albumIdColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             //add song to list
             do {
                 long thisId = musicCursor.getLong(idColumn);
@@ -297,7 +295,7 @@ public class SongListFragment extends Fragment {
                 String thisData = musicCursor.getString(dataColumn);
                 Bitmap songimg = GetBitmap(thisData);
                 Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
-                long albumId = musicCursor.getLong(musicCursor.getColumnIndex(album_id));
+                long albumId = musicCursor.getLong(albumIdColumn);
                 SongList.add(new Song(thisId, thisTitle, thisArtis, lastimg, thisData, albumId));
             }
             while (musicCursor.moveToNext());

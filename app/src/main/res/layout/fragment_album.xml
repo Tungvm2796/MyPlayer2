@@ -10,8 +10,7 @@
         android:layout_height="match_parent"
         android:id="@+id/lin1"
         android:orientation="vertical"
-        android:background="#b27fff"
-        android:visibility="invisible">
+        android:background="#b27fff">
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -39,12 +38,13 @@
         android:layout_height="match_parent"
         android:id="@+id/lin2"
         android:orientation="vertical"
-        android:background="@android:color/darker_gray">
+        android:background="@android:color/darker_gray"
+        android:visibility="invisible">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="DKMM tao day:" />
+            android:text="La tao day:" />
 
         <Button
             android:layout_width="150dp"
@@ -52,10 +52,16 @@
             android:id="@+id/btnlay2"
             android:text="Click me to back"/>
 
+        <TextView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/xemAlbumId"/>
+
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/song_of_album">
+            android:layout_height="300dp"
+            android:id="@+id/song_of_album"
+            android:background="@android:color/holo_green_light">
         </android.support.v7.widget.RecyclerView>
 
     </LinearLayout>

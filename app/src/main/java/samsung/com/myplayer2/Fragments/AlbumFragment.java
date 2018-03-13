@@ -16,18 +16,20 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.RecyclerAlbumAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Album;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
@@ -38,7 +40,7 @@ import samsung.com.myplayer2.Service.MyService;
  * A simple {@link Fragment} subclass.
  */
 
-public class AlbumFragment extends Fragment {
+public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.ItemClickListener{
 
 
     public AlbumFragment() {
@@ -52,9 +54,13 @@ public class AlbumFragment extends Fragment {
     Button clickmeback;
     private ArrayList<Album> albumList;
     private ArrayList<Song> songListTake;
+    private ArrayList<Song> songListInAlbum;
     RecyclerView albumView;
     RecyclerView songOfAlbum;
     Context context;
+    LinearLayout lin1;
+    LinearLayout lin2;
+    TextView xemid;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,9 +72,10 @@ public class AlbumFragment extends Fragment {
         context = super.getActivity();
         albumView = (RecyclerView) v.findViewById(R.id.albumView);
         songOfAlbum = (RecyclerView) v.findViewById(R.id.song_of_album);
+        xemid = (TextView) v.findViewById(R.id.xemAlbumId);
 
-        final LinearLayout lin1 = (LinearLayout)v.findViewById(R.id.lin1);
-        final LinearLayout lin2 = (LinearLayout)v.findViewById(R.id.lin2);
+        lin1 = (LinearLayout)v.findViewById(R.id.lin1);
+        lin2 = (LinearLayout)v.findViewById(R.id.lin2);
 
         setRetainInstance(true);
 
@@ -88,6 +95,7 @@ public class AlbumFragment extends Fragment {
             }
         });
 
+        songListInAlbum = new ArrayList<>();
         songListTake = new ArrayList<>();
         getSongList();
         albumList = new ArrayList<>();
@@ -96,8 +104,12 @@ public class AlbumFragment extends Fragment {
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         albumView.setLayoutManager(mManager);
         RecyclerAlbumAdapter albumAdt = new RecyclerAlbumAdapter(albumList);
-        albumView.setItemAnimator(new DefaultItemAnimator());
+        albumAdt.setClickListener(this);
         albumView.setAdapter(albumAdt);
+
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        songOfAlbum.setLayoutManager(manager);
+        songOfAlbum.setAdapter(null);
 
         return v;
     }
@@ -141,13 +153,13 @@ public class AlbumFragment extends Fragment {
         ContentResolver musicResolver = getActivity().getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-        final String album_id = MediaStore.Audio.Albums._ID;
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get collumn
             int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
             int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
             int artisColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+            int albumIdColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
             //add song to list
             do {
                 long thisId = musicCursor.getLong(idColumn);
@@ -156,7 +168,7 @@ public class AlbumFragment extends Fragment {
                 String thisData = musicCursor.getString(dataColumn);
                 Bitmap songimg = GetBitmap(thisData);
                 Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
-                long albumId = musicCursor.getLong(musicCursor.getColumnIndex(album_id));
+                long albumId = musicCursor.getLong(albumIdColumn);
                 songListTake.add(new Song(thisId, thisTitle, thisArtis, lastimg, thisData, albumId));
             }
             while (musicCursor.moveToNext());
@@ -203,7 +215,7 @@ public class AlbumFragment extends Fragment {
             //get service
             myService = binder.getService();
             //pass list
-            //myService.setList(SongList);
+            myService.setList(songListTake);
             musicBound = true;
         }
 
@@ -228,5 +240,23 @@ public class AlbumFragment extends Fragment {
             getActivity().unbindService(musicConnection);
             musicBound = false;
         }
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+        lin1.setVisibility(View.INVISIBLE);
+        lin2.setVisibility(View.VISIBLE);
+        songListInAlbum.clear();
+
+                for(int i=0; i<songListTake.size(); i++)
+                    if(songListTake.get(i).getAlbumid() == albumList.get(position).getId())
+                        songListInAlbum.add(songListTake.get(i));
+
+        xemid.setText(Long.toString(songListInAlbum.size()));
+
+        songOfAlbum.setAdapter(null);
+        RecyclerSongAdapter songAdt = new RecyclerSongAdapter(songListInAlbum);
+        songOfAlbum.setAdapter(songAdt);
+        myService.setList(songListInAlbum);
     }
 }

@@ -388,8 +388,6 @@ public class MyService extends Service implements
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
-
         if(!player.isPlaying()){
             stopForeground(true);
             unregisterReceiver(myServBroadcast);
@@ -397,6 +395,9 @@ public class MyService extends Service implements
         }else{ checkBothRun();}
 
         Log.i("Thong bao", "Da kill task xxxxxxxxxxxxxxxxx ");
+
+        super.onTaskRemoved(rootIntent);
+
     }
 
     BroadcastReceiver myServBroadcast = new BroadcastReceiver() {

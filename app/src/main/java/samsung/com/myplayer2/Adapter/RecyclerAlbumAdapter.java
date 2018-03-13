@@ -19,8 +19,9 @@ import samsung.com.myplayer2.R;
 public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdapter.MyRecyclerHolder2>{
 
     private ArrayList<Album> albumList;
+    private ItemClickListener mClickListener;
 
-    public class MyRecyclerHolder2 extends RecyclerView.ViewHolder{
+    public class MyRecyclerHolder2 extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView albumName, albumArtist;
         ImageView albumImg;
         public MyRecyclerHolder2(View albumLay){
@@ -29,7 +30,14 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
             albumName = (TextView) albumLay.findViewById(R.id.album_name);
             albumArtist = (TextView) albumLay.findViewById(R.id.album_artist);
             albumImg = (ImageView) albumLay.findViewById(R.id.album_img);
+            itemView.setOnClickListener(this);
 
+        }
+
+        @Override
+        public void onClick(View view) {
+            if(mClickListener != null)
+                mClickListener.onItemClick(view, getAdapterPosition());
         }
     }
 
@@ -50,10 +58,21 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
         holder.albumName.setText(curAlbum.getAlbumName());
         holder.albumArtist.setText(curAlbum.getArtistName());
         holder.albumImg.setImageBitmap(curAlbum.getAlbumImg());
+
     }
 
     @Override
     public int getItemCount() {
         return albumList.size();
+    }
+
+    // allows clicks events to be caught
+    public void setClickListener(ItemClickListener itemClickListener) {
+        this.mClickListener = itemClickListener;
+    }
+
+    // parent activity will implement this method to respond to click events
+    public interface ItemClickListener {
+        void onItemClick(View view, int position);
     }
 }
