@@ -40,7 +40,7 @@ import samsung.com.myplayer2.Service.MyService;
  * A simple {@link Fragment} subclass.
  */
 
-public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.ItemClickListener{
+public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.ItemClickListener {
 
 
     public AlbumFragment() {
@@ -74,8 +74,8 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         songOfAlbum = (RecyclerView) v.findViewById(R.id.song_of_album);
         xemid = (TextView) v.findViewById(R.id.xemAlbumId);
 
-        lin1 = (LinearLayout)v.findViewById(R.id.lin1);
-        lin2 = (LinearLayout)v.findViewById(R.id.lin2);
+        lin1 = (LinearLayout) v.findViewById(R.id.lin1);
+        lin2 = (LinearLayout) v.findViewById(R.id.lin2);
 
         setRetainInstance(true);
 
@@ -103,7 +103,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         albumView.setLayoutManager(mManager);
-        RecyclerAlbumAdapter albumAdt = new RecyclerAlbumAdapter(albumList);
+        RecyclerAlbumAdapter albumAdt = new RecyclerAlbumAdapter(getContext(), albumList);
         albumAdt.setClickListener(this);
         albumView.setAdapter(albumAdt);
 
@@ -176,7 +176,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         musicCursor.close();
     }
 
-    public void getAlbumsLists(){
+    public void getAlbumsLists() {
         String where = null;
 
         final Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
@@ -186,10 +186,10 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         final String albumart = MediaStore.Audio.Albums.ALBUM_ART;
         final String tracks = MediaStore.Audio.Albums.NUMBER_OF_SONGS;
 
-        final String[] columns = { _id, album_name, artist, albumart, tracks };
+        final String[] columns = {_id, album_name, artist, albumart, tracks};
         Cursor cursor = getActivity().getContentResolver().query(uri, columns, where, null, null);
 
-        if(cursor!=null && cursor.moveToFirst()){
+        if (cursor != null && cursor.moveToFirst()) {
 
             do {
 
@@ -198,7 +198,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
                 String artist2 = cursor.getString(cursor.getColumnIndex(artist));
                 String artPath = cursor.getString(cursor.getColumnIndex(albumart));
                 Bitmap art = BitmapFactory.decodeFile(artPath);
-                int nr =Integer.parseInt(cursor.getString(cursor.getColumnIndex(tracks)));
+                int nr = Integer.parseInt(cursor.getString(cursor.getColumnIndex(tracks)));
 
                 albumList.add(new Album(id, name, artist2, nr, art));
 
@@ -248,14 +248,14 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         lin2.setVisibility(View.VISIBLE);
         songListInAlbum.clear();
 
-                for(int i=0; i<songListTake.size(); i++)
-                    if(songListTake.get(i).getAlbumid() == albumList.get(position).getId())
-                        songListInAlbum.add(songListTake.get(i));
+        for (int i = 0; i < songListTake.size(); i++)
+            if (songListTake.get(i).getAlbumid() == albumList.get(position).getId())
+                songListInAlbum.add(songListTake.get(i));
 
         xemid.setText(Long.toString(songListInAlbum.size()));
 
         songOfAlbum.setAdapter(null);
-        RecyclerSongAdapter songAdt = new RecyclerSongAdapter(songListInAlbum);
+        RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), songListInAlbum);
         songOfAlbum.setAdapter(songAdt);
         myService.setList(songListInAlbum);
     }

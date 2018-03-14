@@ -1,5 +1,6 @@
 package samsung.com.myplayer2.Adapter;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,7 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
 
     private ArrayList<Album> albumList;
     private ItemClickListener mClickListener;
+    Context mContext;
 
     public class MyRecyclerHolder2 extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView albumName, albumArtist;
@@ -41,7 +43,8 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
         }
     }
 
-    public RecyclerAlbumAdapter(ArrayList<Album> albumList) {
+    public RecyclerAlbumAdapter(Context context, ArrayList<Album> albumList) {
+        this.mContext = context;
         this.albumList = albumList;
     }
 

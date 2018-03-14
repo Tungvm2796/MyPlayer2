@@ -130,7 +130,7 @@ public class SongListFragment extends Fragment {
 
         getSongList();
 
-        final RecyclerSongAdapter songAdt = new RecyclerSongAdapter(SongList);
+        final RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), SongList);
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
         songView.setLayoutManager(mManager);
         songView.setAdapter(songAdt);
@@ -170,7 +170,7 @@ public class SongListFragment extends Fragment {
                         songView.setAdapter(null);
                         SongFilterList.clear();
                         getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
-                        RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(SongFilterList);
+                        RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(getContext(), SongFilterList);
                         songView.setAdapter(songAdapter1);
                         myService.setList(SongFilterList);
                     } else {
@@ -200,7 +200,7 @@ public class SongListFragment extends Fragment {
                             songView.setAdapter(null);
                             SongFilterList.clear();
                             getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
-                            RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(SongFilterList);
+                            RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(getContext(), SongFilterList);
                             songView.setAdapter(songAdapter2);
                             myService.setList(SongFilterList);
                         } else {
