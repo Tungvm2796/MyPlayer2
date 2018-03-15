@@ -20,7 +20,6 @@
             android:layout_marginRight="5dp"
             android:padding="5dp"
             android:scaleType="centerCrop"
-            app:srcCompat="@drawable/noteicon"
             android:contentDescription="Image"/>
 
         <LinearLayout

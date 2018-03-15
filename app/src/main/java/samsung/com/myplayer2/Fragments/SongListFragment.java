@@ -120,7 +120,7 @@ public class SongListFragment extends Fragment {
 
         animation = AnimationUtils.loadAnimation(getActivity(), R.anim.disc_rolate);
 
-        context = super.getActivity();
+        context = v.getContext();
 
         setRetainInstance(true);
 
@@ -318,7 +318,9 @@ public class SongListFragment extends Fragment {
             //get service
             myService = binder.getService();
             //pass list
+            myService.setAllSongs(SongList);
             myService.setList(SongList);
+
             musicBound = true;
         }
 
@@ -347,4 +349,5 @@ public class SongListFragment extends Fragment {
             musicBound = false;
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package samsung.com.myplayer2.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Class.Album;
@@ -17,16 +21,22 @@ import samsung.com.myplayer2.R;
  * Created by 450G4 on 3/12/2018.
  */
 
-public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdapter.MyRecyclerHolder2>{
+public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdapter.MyRecyclerHolder2> {
 
     private ArrayList<Album> albumList;
     private ItemClickListener mClickListener;
     Context mContext;
 
-    public class MyRecyclerHolder2 extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public RecyclerAlbumAdapter(Context context, ArrayList<Album> albumList) {
+        this.mContext = context;
+        this.albumList = albumList;
+    }
+
+    public class MyRecyclerHolder2 extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView albumName, albumArtist;
         ImageView albumImg;
-        public MyRecyclerHolder2(View albumLay){
+
+        public MyRecyclerHolder2(View albumLay) {
             super(albumLay);
 
             albumName = (TextView) albumLay.findViewById(R.id.album_name);
@@ -38,14 +48,9 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
 
         @Override
         public void onClick(View view) {
-            if(mClickListener != null)
+            if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
         }
-    }
-
-    public RecyclerAlbumAdapter(Context context, ArrayList<Album> albumList) {
-        this.mContext = context;
-        this.albumList = albumList;
     }
 
     @Override
@@ -60,7 +65,7 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
 
         holder.albumName.setText(curAlbum.getAlbumName());
         holder.albumArtist.setText(curAlbum.getArtistName());
-        holder.albumImg.setImageBitmap(curAlbum.getAlbumImg());
+        Glide.with(mContext).load(BitmapToByte(curAlbum.getAlbumImg())).into(holder.albumImg);
 
     }
 
@@ -77,5 +82,12 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
+    }
+
+    public byte[] BitmapToByte(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (bitmap != null)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
     }
 }

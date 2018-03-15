@@ -27,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import samsung.com.myplayer2.Adapter.RecyclerAlbumAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
@@ -61,6 +63,14 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
     LinearLayout lin1;
     LinearLayout lin2;
     TextView xemid;
+
+    public void SortByName() {
+        Collections.sort(songListTake, new Comparator<Song>() {
+            public int compare(Song a, Song b) {
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -173,6 +183,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
             }
             while (musicCursor.moveToNext());
         }
+        SortByName();
         musicCursor.close();
     }
 

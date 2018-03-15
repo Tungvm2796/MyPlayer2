@@ -52,7 +52,9 @@ public class MyService extends Service implements
 
     //media player
     public static MediaPlayer player;
-    //song list
+    //song list of all
+    private ArrayList<Song> allsongs;
+    //song list to play
     private ArrayList<Song> songs;
     //current position
     private int songPosn;
@@ -124,12 +126,11 @@ public class MyService extends Service implements
                 updateProgress();
 
             } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
-                if(!player.isPlaying()) {
+                if (!player.isPlaying()) {
                     if (bothRun = true) {
                         stopForeground(true);
                         checkBothRun();
-                    }
-                    else if (bothRun = false){
+                    } else if (bothRun = false) {
                         stopForeground(true);
                         unregisterReceiver(myServBroadcast);
                         stopSelf();
@@ -160,6 +161,11 @@ public class MyService extends Service implements
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
+    }
+
+    //set list of all songs
+    public void setAllSongs(ArrayList<Song> listAll) {
+        allsongs = listAll;
     }
 
     //pass song list
@@ -231,7 +237,7 @@ public class MyService extends Service implements
         });
     }
 
-    //set the song
+    //set the song list to play
     public void setSong(int songIndex) {
         songPosn = songIndex;
     }
@@ -287,12 +293,12 @@ public class MyService extends Service implements
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notice_layout);
         switch (casenum) {
             case 1:
-                contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_pause_circle_outline_white_24dp);
+                contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_pause_black_24dp);
                 contentView.setOnClickPendingIntent(R.id.notice_play, ppauseIntent);
                 break;
             case 2:
                 contentView.setOnClickPendingIntent(R.id.notice_play, pplayIntent);
-                contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_play_circle_outline_white_24dp);
+                contentView.setImageViewResource(R.id.notice_play, R.drawable.ic_play_arrow_black_24dp);
                 break;
         }
 
@@ -388,11 +394,13 @@ public class MyService extends Service implements
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        if(!player.isPlaying()){
+        if (!player.isPlaying()) {
             stopForeground(true);
             unregisterReceiver(myServBroadcast);
             stopSelf();
-        }else{ checkBothRun();}
+        } else {
+            checkBothRun();
+        }
 
         Log.i("Thong bao", "Da kill task xxxxxxxxxxxxxxxxx ");
 
@@ -416,6 +424,8 @@ public class MyService extends Service implements
             } else if (intent.getAction().toString().equals("SvPlayOne")) {
                 Toast.makeText(getApplicationContext(), "Service received: Play One", Toast.LENGTH_SHORT).show();
                 Integer posn = intent.getIntExtra("pos", 0);
+                if (SizeList() <= posn)
+                    songs = allsongs;
                 setSong(posn);
                 playSong();
                 btnPayPause.get().setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
@@ -477,5 +487,9 @@ public class MyService extends Service implements
         progressHandler.removeCallbacks(run);
         seek(seekBar.getProgress());
         updateProgress();
+    }
+
+    public int SizeList() {
+        return songs.size();
     }
 }
