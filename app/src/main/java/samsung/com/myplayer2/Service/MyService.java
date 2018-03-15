@@ -125,6 +125,12 @@ public class MyService extends Service implements
 
                 updateProgress();
 
+            } else if (intent.getAction().toString().equals(Constants.ACTION.NEXT_ACTION)) {
+                showNoti(1);
+                playNext();
+            } else if (intent.getAction().toString().equals(Constants.ACTION.PREV_ACTION)) {
+                showNoti(1);
+                playPrev();
             } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
                 if (!player.isPlaying()) {
                     if (bothRun = true) {
@@ -272,6 +278,14 @@ public class MyService extends Service implements
         playIntent.setAction(Constants.ACTION.PLAY_ACTION);
         PendingIntent pplayIntent = PendingIntent.getService(this, 0, playIntent, 0);
 
+        Intent nextIntent = new Intent(this, MyService.class);
+        nextIntent.setAction(Constants.ACTION.NEXT_ACTION);
+        PendingIntent pnextIntent = PendingIntent.getService(this, 0, nextIntent, 0);
+
+        Intent prevIntent = new Intent(this, MyService.class);
+        prevIntent.setAction(Constants.ACTION.PREV_ACTION);
+        PendingIntent pprevIntent = PendingIntent.getService(this, 0, prevIntent, 0);
+
         Intent closeIntent = new Intent(this, MyService.class);
         closeIntent.setAction(Constants.ACTION.EXIT_ACTION);
         PendingIntent pcloseIntent = PendingIntent.getService(this, 0, closeIntent, 0);
@@ -302,8 +316,11 @@ public class MyService extends Service implements
                 break;
         }
 
+
         contentView.setTextViewText(R.id.song_name, songTitle);
         contentView.setTextViewText(R.id.song_artist, songArtist);
+        contentView.setOnClickPendingIntent(R.id.notice_next, pnextIntent);
+        contentView.setOnClickPendingIntent(R.id.notice_prev, pprevIntent);
         contentView.setOnClickPendingIntent(R.id.exit_notice, pcloseIntent);
 
 

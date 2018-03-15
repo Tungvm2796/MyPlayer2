@@ -52,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private boolean musicBound = false;
     private Intent playintent;
     ImageButton btnPlayPause;
+    ImageButton next;
+    ImageButton prev;
     private Intent PPIntent;
     TextView txtArtist;
     TextView txtTitle;
@@ -116,6 +118,20 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myService.playNext();
+            }
+        });
+
+        prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myService.playPrev();
+            }
+        });
     }
 
     private void initView() {
@@ -155,6 +171,8 @@ public class MainActivity extends AppCompatActivity {
         slidingLayout.getChildAt(1).setOnClickListener(null);
 
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
+        next = (ImageButton) findViewById(R.id.btn_next);
+        prev = (ImageButton) findViewById(R.id.btn_prev);
     }
 
     public void initPermission() {

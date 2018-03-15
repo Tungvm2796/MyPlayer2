@@ -43,9 +43,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginRight="5dp"
             android:background="@null"
-            android:src="@drawable/ic_skip_previous_black_24dp" />
+            android:src="@drawable/ic_skip_previous_black_24dpsmall"
+            android:layout_marginTop="10dp"/>
 
         <ImageButton
             android:id="@+id/notice_play"
@@ -60,10 +61,11 @@
             android:id="@+id/notice_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="5dp"
             android:layout_marginRight="10dp"
             android:background="@null"
-            android:src="@drawable/ic_skip_next_black_24dp" />
+            android:src="@drawable/ic_skip_next_black_24dpsmall"
+            android:layout_marginTop="10dp"/>
 
         <ImageButton
             android:id="@+id/exit_notice"
