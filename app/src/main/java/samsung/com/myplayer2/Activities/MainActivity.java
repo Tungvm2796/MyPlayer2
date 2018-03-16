@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     ImageButton btnPlayPause;
     ImageButton next;
     ImageButton prev;
+    ImageButton shuffle;
+    ImageButton repeat;
     private Intent PPIntent;
     TextView txtArtist;
     TextView txtTitle;
@@ -175,6 +177,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        shuffle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myService.setShuffle();
+            }
+        });
+
+        repeat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myService.setRepeat();
+            }
+        });
+
     }
 
     private void initView() {
@@ -216,6 +232,8 @@ public class MainActivity extends AppCompatActivity {
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         next = (ImageButton) findViewById(R.id.btn_next);
         prev = (ImageButton) findViewById(R.id.btn_prev);
+        shuffle = (ImageButton) findViewById(R.id.btn_shuffle);
+        repeat = (ImageButton) findViewById(R.id.btn_repeat);
     }
 
     public void initPermission() {
@@ -363,6 +381,7 @@ public class MainActivity extends AppCompatActivity {
             } else if (intent.getAction().toString().equals("StartPlay")) {
                 txtTitle.setText(intent.getStringExtra("title"));
                 txtArtist.setText(intent.getStringExtra("artist"));
+                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 SongPath = intent.getStringExtra("songpath");
                 imgDisc.setImageBitmap(GetBitmap(SongPath));
             }
@@ -381,5 +400,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return image;
     }
-    
+
 }

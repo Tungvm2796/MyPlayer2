@@ -204,23 +204,19 @@ public class MyService extends Service implements
         //play
         player.reset();
         //get song
-        if (shuffle)
-            setList(allsongs);
-        else {
-            switch (listIndex) {
-                case 1:
-                    setList(getSongListFrag1());
-                    break;
-                case 2:
-                    setList(getSongListFrag2());
-                    break;
-                case 3:
-                    setList(getSongListFrag3());
-                    break;
-                case 4:
-                    setList(getSongListFrag4());
-                    break;
-            }
+        switch (listIndex) {
+            case 1:
+                setList(getSongListFrag1());
+                break;
+            case 2:
+                setList(getSongListFrag2());
+                break;
+            case 3:
+                setList(getSongListFrag3());
+                break;
+            case 4:
+                setList(getSongListFrag4());
+                break;
         }
         Song playSong = songs.get(songPosn);
         //get title
@@ -404,28 +400,42 @@ public class MyService extends Service implements
 
     //skip to next
     public void playNext() {
-        if (shuffle) {
-            int newSong = songPosn;
-            while (newSong == songPosn) {
-                newSong = rand.nextInt(songs.size());
+        if (!repeat) {
+            if (shuffle) {
+                int newSong = songPosn;
+                while (newSong == songPosn) {
+                    newSong = rand.nextInt(songs.size());
+                }
+                songPosn = newSong;
+            } else {
+                songPosn++;
+                if (songPosn >= songs.size()) songPosn = 0;
             }
-            songPosn = newSong;
-        } else {
-            songPosn++;
-            if (songPosn >= songs.size()) songPosn = 0;
+        } else if (repeat) {
+
         }
         playSong(ListNumber);
     }
 
     //toggle shuffle
     public void setShuffle() {
-        if (shuffle) shuffle = false;
-        else shuffle = true;
+        if (shuffle) {
+            shuffle = false;
+            Toast.makeText(getApplicationContext(), "Shufle is Off", Toast.LENGTH_SHORT).show();
+        } else {
+            shuffle = true;
+            Toast.makeText(getApplicationContext(), "Shuffle is On", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void setRepeat() {
-        if (repeat) repeat = false;
-        else repeat = true;
+        if (repeat) {
+            repeat = false;
+            Toast.makeText(getApplicationContext(), "Repeat is Off", Toast.LENGTH_SHORT).show();
+        } else {
+            repeat = true;
+            Toast.makeText(getApplicationContext(), "Repeat is On", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public boolean checkBothRun() {
@@ -508,6 +518,7 @@ public class MyService extends Service implements
         //check if playback has reached the end of a track
         seekPro.get().setProgress(0);
         progressHandler.removeCallbacks(run);
+        btnPayPause.get().setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
         if (player.getCurrentPosition() > 0) {
             mp.reset();
             playNext();
