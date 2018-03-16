@@ -54,8 +54,18 @@ public class MyService extends Service implements
     public static MediaPlayer player;
     //song list of all
     private ArrayList<Song> allsongs;
+    //List from Fragment 1
+    private ArrayList<Song> SongListFrag1;
+    //List from Fragment 2
+    private ArrayList<Song> SongListFrag2;
+    //List from Fragment 3
+    private ArrayList<Song> SongListFrag3;
+    //List from Fragment 4
+    private ArrayList<Song> SongListFrag4;
     //song list to play
     private ArrayList<Song> songs;
+    //Number of song list
+    private int ListNumber = 1;
     //current position
     private int songPosn;
     //binder
@@ -68,6 +78,7 @@ public class MyService extends Service implements
     private static final int NOTIFY_ID = 27;
     //shuffle flag and random
     private boolean shuffle = false;
+    private boolean repeat = false;
     private Random rand;
 
     public static boolean bothRun = true;
@@ -107,7 +118,7 @@ public class MyService extends Service implements
                 pausePlayer();
                 showNoti(2);
 
-                Intent intent1 = new Intent();
+                Intent intent1 = new Intent("ToActivity");
                 intent1.setAction("PlayPause");
                 intent1.putExtra("key", "pause");
                 sendBroadcast(intent1);
@@ -118,7 +129,7 @@ public class MyService extends Service implements
                 go();
                 showNoti(1);
 
-                Intent intent2 = new Intent();
+                Intent intent2 = new Intent("ToActivity");
                 intent2.setAction("PlayPause");
                 intent2.putExtra("key", "play");
                 sendBroadcast(intent2);
@@ -169,16 +180,6 @@ public class MyService extends Service implements
         player.setOnErrorListener(this);
     }
 
-    //set list of all songs
-    public void setAllSongs(ArrayList<Song> listAll) {
-        allsongs = listAll;
-    }
-
-    //pass song list
-    public void setList(ArrayList<Song> theSongs) {
-        songs = theSongs;
-    }
-
     //binder
     public class MusicBinder extends Binder {
         public MyService getService() {
@@ -199,10 +200,28 @@ public class MyService extends Service implements
     }
 
     //play a song
-    public void playSong() {
+    public void playSong(int listIndex) {
         //play
         player.reset();
         //get song
+        if (shuffle)
+            setList(allsongs);
+        else {
+            switch (listIndex) {
+                case 1:
+                    setList(getSongListFrag1());
+                    break;
+                case 2:
+                    setList(getSongListFrag2());
+                    break;
+                case 3:
+                    setList(getSongListFrag3());
+                    break;
+                case 4:
+                    setList(getSongListFrag4());
+                    break;
+            }
+        }
         Song playSong = songs.get(songPosn);
         //get title
         songTitle = playSong.getTitle();
@@ -227,10 +246,11 @@ public class MyService extends Service implements
             e.printStackTrace();
         }
 
-        Intent setup = new Intent();
+        Intent setup = new Intent("ToActivity");
         setup.setAction("StartPlay");
         setup.putExtra("title", songTitle);
         setup.putExtra("artist", songArtist);
+        setup.putExtra("songpath", playSong.getData());
         sendBroadcast(setup);
 
         player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -379,7 +399,7 @@ public class MyService extends Service implements
     public void playPrev() {
         songPosn--;
         if (songPosn < 0) songPosn = songs.size() - 1;
-        playSong();
+        playSong(ListNumber);
     }
 
     //skip to next
@@ -394,13 +414,18 @@ public class MyService extends Service implements
             songPosn++;
             if (songPosn >= songs.size()) songPosn = 0;
         }
-        playSong();
+        playSong(ListNumber);
     }
 
     //toggle shuffle
     public void setShuffle() {
         if (shuffle) shuffle = false;
         else shuffle = true;
+    }
+
+    public void setRepeat() {
+        if (repeat) repeat = false;
+        else repeat = true;
     }
 
     public boolean checkBothRun() {
@@ -444,7 +469,7 @@ public class MyService extends Service implements
                 if (SizeList() <= posn)
                     songs = allsongs;
                 setSong(posn);
-                playSong();
+                playSong(ListNumber);
                 btnPayPause.get().setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
             }
         }
@@ -508,5 +533,66 @@ public class MyService extends Service implements
 
     public int SizeList() {
         return songs.size();
+    }
+
+    public boolean isShuffle() {
+        if (shuffle) return true;
+        else return false;
+    }
+
+    public boolean isRepeat() {
+        if (repeat) return true;
+        else return false;
+    }
+
+    public String GetSongPath() {
+        Song playSong = songs.get(songPosn);
+        return playSong.getData();
+    }
+
+    //set list of all songs
+    public void setAllSongs(ArrayList<Song> listAll) {
+        allsongs = listAll;
+    }
+
+    //pass song list
+    public void setList(ArrayList<Song> theSongs) {
+        songs = theSongs;
+    }
+
+    public void setSongListFrag1(ArrayList<Song> songListFrag1) {
+        SongListFrag1 = songListFrag1;
+    }
+
+    public void setSongListFrag2(ArrayList<Song> songListFrag2) {
+        SongListFrag2 = songListFrag2;
+    }
+
+    public void setSongListFrag3(ArrayList<Song> songListFrag3) {
+        SongListFrag3 = songListFrag3;
+    }
+
+    public void setSongListFrag4(ArrayList<Song> songListFrag4) {
+        SongListFrag4 = songListFrag4;
+    }
+
+    public void setListNumber(int num) {
+        ListNumber = num;
+    }
+
+    public ArrayList<Song> getSongListFrag1() {
+        return SongListFrag1;
+    }
+
+    public ArrayList<Song> getSongListFrag2() {
+        return SongListFrag2;
+    }
+
+    public ArrayList<Song> getSongListFrag3() {
+        return SongListFrag3;
+    }
+
+    public ArrayList<Song> getSongListFrag4() {
+        return SongListFrag4;
     }
 }

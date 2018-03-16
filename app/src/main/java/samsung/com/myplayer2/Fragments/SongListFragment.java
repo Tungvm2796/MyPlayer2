@@ -61,7 +61,7 @@ public class SongListFragment extends Fragment {
         });
     }
 
-    private ArrayList<Song> SongList;
+    public ArrayList<Song> SongList;
     private ArrayList<Song> SongFilterList;
     private RecyclerView songView;
     EditText searchbox;
@@ -172,11 +172,11 @@ public class SongListFragment extends Fragment {
                         getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
                         RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(getContext(), SongFilterList);
                         songView.setAdapter(songAdapter1);
-                        myService.setList(SongFilterList);
+                        myService.setSongListFrag1(SongFilterList);
                     } else {
                         songView.setAdapter(null);
                         songView.setAdapter(songAdt);
-                        myService.setList(SongList);
+                        myService.setSongListFrag1(SongList);
                     }
                 }
                 return false;
@@ -202,11 +202,11 @@ public class SongListFragment extends Fragment {
                             getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
                             RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(getContext(), SongFilterList);
                             songView.setAdapter(songAdapter2);
-                            myService.setList(SongFilterList);
+                            myService.setSongListFrag1(SongFilterList);
                         } else {
                             songView.setAdapter(null);
                             songView.setAdapter(songAdt);
-                            myService.setList(SongList);
+                            myService.setSongListFrag1(SongList);
                         }
 
 
@@ -279,7 +279,8 @@ public class SongListFragment extends Fragment {
         //retrieve song info
         ContentResolver musicResolver = getActivity().getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        String select = MediaStore.Audio.Media.DURATION + ">=30000";
+        Cursor musicCursor = musicResolver.query(musicUri, null, select, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get collumn
             int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -319,7 +320,7 @@ public class SongListFragment extends Fragment {
             myService = binder.getService();
             //pass list
             myService.setAllSongs(SongList);
-            myService.setList(SongList);
+            myService.setSongListFrag1(SongList);
 
             musicBound = true;
         }

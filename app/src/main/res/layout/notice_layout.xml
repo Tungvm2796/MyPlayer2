@@ -4,18 +4,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/exit_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
+            android:background="@android:color/transparent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_clear_black_24dp" />
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
-        android:gravity="center_horizontal"
         android:orientation="horizontal">
 
         <RelativeLayout
             android:layout_width="90dp"
             android:layout_height="50dp"
+            android:layout_marginLeft="5dp"
             android:paddingLeft="3dp">
 
             <TextView
@@ -42,11 +58,11 @@
             android:id="@+id/notice_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="40dp"
             android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
             android:background="@null"
-            android:src="@drawable/ic_skip_previous_black_24dpsmall"
-            android:layout_marginTop="10dp"/>
+            android:src="@drawable/ic_skip_previous_black_24dpsmall" />
 
         <ImageButton
             android:id="@+id/notice_play"
@@ -62,17 +78,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
             android:background="@null"
-            android:src="@drawable/ic_skip_next_black_24dpsmall"
-            android:layout_marginTop="10dp"/>
+            android:src="@drawable/ic_skip_next_black_24dpsmall" />
 
-        <ImageButton
-            android:id="@+id/exit_notice"
-            android:layout_width="50dp"
-            android:layout_height="60dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/exit" />
 
     </LinearLayout>
 </LinearLayout>

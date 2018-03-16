@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,7 +40,8 @@ import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayList<Song> SongList;
+
+    private ArrayList<Song> MainSongList;
 
     private ListView songView;
 
@@ -60,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     public static TextView txtTimeSong;
     public static TextView txtTotal;
     public static SeekBar seekBar;
+    ImageView imgDisc;
+    String SongPath;
 
     public void SetTimeTotal() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
@@ -89,13 +96,48 @@ public class MainActivity extends AppCompatActivity {
         initPermission();
 
         context = this;
+        MainSongList = new ArrayList<>();
 
-        IntentFilter toActivity = new IntentFilter();
+        IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
         registerReceiver(myMainBroadcast, toActivity);
 
+        imgDisc = (ImageView) findViewById(R.id.imageViewDisc);
+
         initView();
+
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (musicBound) {
+                    switch (position) {
+                        case 0:
+                            myService.setListNumber(1);
+                            break;
+                        case 1:
+                            myService.setListNumber(2);
+                            break;
+                        case 2:
+                            myService.setListNumber(3);
+                            break;
+                        case 3:
+                            myService.setListNumber(4);
+                            break;
+                    }
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         btnPlayPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 myService.playPrev();
             }
         });
+
     }
 
     private void initView() {
@@ -281,8 +324,11 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String saveTitle = settings.getString("curSongName", "0");
         String saveArtist = settings.getString("curArtist", "0");
+        String savePath = settings.getString("curSongImg", "0");
         txtTitle.setText(saveTitle);
         txtArtist.setText(saveArtist);
+        if (savePath != "0")
+            imgDisc.setImageBitmap(GetBitmap(savePath));
 
         super.onResume();
     }
@@ -300,6 +346,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("curSongName", myService.getSongTitle());
         editor.putString("curArtist", myService.getSongArtist());
+        editor.putString("curSongImg", SongPath);
         editor.apply();
     }
 
@@ -316,7 +363,23 @@ public class MainActivity extends AppCompatActivity {
             } else if (intent.getAction().toString().equals("StartPlay")) {
                 txtTitle.setText(intent.getStringExtra("title"));
                 txtArtist.setText(intent.getStringExtra("artist"));
+                SongPath = intent.getStringExtra("songpath");
+                imgDisc.setImageBitmap(GetBitmap(SongPath));
             }
         }
     };
+
+    Bitmap GetBitmap(String filePath) {
+        Bitmap image;
+        MediaMetadataRetriever mData = new MediaMetadataRetriever();
+        mData.setDataSource(filePath);
+        try {
+            byte art[] = mData.getEmbeddedPicture();
+            image = BitmapFactory.decodeByteArray(art, 0, art.length);
+        } catch (Exception e) {
+            image = null;
+        }
+        return image;
+    }
+    
 }

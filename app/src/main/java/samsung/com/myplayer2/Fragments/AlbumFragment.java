@@ -162,7 +162,8 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         //retrieve song info
         ContentResolver musicResolver = getActivity().getContentResolver();
         Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+        String select = MediaStore.Audio.Media.DURATION + ">=30000";
+        Cursor musicCursor = musicResolver.query(musicUri, null, select, null, null);
         if (musicCursor != null && musicCursor.moveToFirst()) {
             //get collumn
             int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -268,6 +269,6 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         songOfAlbum.setAdapter(null);
         RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), songListInAlbum);
         songOfAlbum.setAdapter(songAdt);
-        myService.setList(songListInAlbum);
+        myService.setSongListFrag2(songListInAlbum);
     }
 }
