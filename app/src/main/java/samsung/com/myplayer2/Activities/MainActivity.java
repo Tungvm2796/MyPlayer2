@@ -29,11 +29,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
@@ -50,8 +52,11 @@ public class MainActivity extends AppCompatActivity {
     EditText searchbox;
 
     ViewPager viewPager;
+    CustomPagerAdapter customPagerAdapter;
 
     TabLayout tabLayout;
+    SmartTabLayout smartTabLayout;
+    //PagerTabStrip pagerTabStrip;
     private SlidingUpPanelLayout slidingLayout;
     MyService myService;
     private boolean musicBound = false;
@@ -204,23 +209,21 @@ public class MainActivity extends AppCompatActivity {
 
         seekBar = (SeekBar) findViewById(R.id.seekbar_song);
 
+        smartTabLayout = (SmartTabLayout) findViewById(R.id.viewpagertab);
+
+        customPagerAdapter = new CustomPagerAdapter(this, getSupportFragmentManager());
+
         viewPager = (ViewPager) findViewById(R.id.viewpager1);
 
-        tabLayout = (TabLayout) findViewById(R.id.tab1);
+        viewPager.setAdapter(customPagerAdapter);
+
+        viewPager.setOffscreenPageLimit(customPagerAdapter.getCount() - 1);
+
+        smartTabLayout.setViewPager(viewPager);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         FragmentAdapter fragmentAdapter = new FragmentAdapter(fragmentManager, MainActivity.this);
-
-        viewPager.setAdapter(fragmentAdapter);
-
-        viewPager.setOffscreenPageLimit(fragmentAdapter.getCount() - 1);
-
-        tabLayout.setupWithViewPager(viewPager);
-
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-
-        tabLayout.setTabsFromPagerAdapter(fragmentAdapter);
 
         //set layout slide listener
         slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);

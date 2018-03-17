@@ -7,6 +7,8 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import samsung.com.myplayer2.Fragments.AlbumFragment;
 import samsung.com.myplayer2.Fragments.ArtistFragment;
+import samsung.com.myplayer2.Fragments.OnlineFragment;
+import samsung.com.myplayer2.Fragments.PlaylistFragment;
 import samsung.com.myplayer2.Fragments.SongListFragment;
 import samsung.com.myplayer2.R;
 
@@ -44,13 +46,25 @@ public class FragmentAdapter extends FragmentStatePagerAdapter{
 
                 break;
 
+            case 3:
+
+                frag = new PlaylistFragment();
+
+                break;
+
+            case 4:
+
+                frag = new OnlineFragment();
+
+                break;
+
         }
         return frag;
     }
 
     @Override
     public int getCount() {
-        return 3;
+        return 5;
     }
 
     @Override
@@ -65,7 +79,16 @@ public class FragmentAdapter extends FragmentStatePagerAdapter{
                 break;
             case 2:
                 title = mContext.getResources().getString(R.string.frag3);
+                break;
+            case 3:
+                title = mContext.getResources().getString(R.string.frag4);
+                break;
+            case 4:
+                title = mContext.getResources().getString(R.string.frag5);
+                break;
         }
         return title;
     }
+
+    
 }

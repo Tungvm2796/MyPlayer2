@@ -11,6 +11,10 @@
 
     <string name="frag3">Artist</string>
 
+    <string name="frag4">Play List</string>
+
+    <string name="frag5">Online</string>
+
     <string name="pause">Pause</string>
 
 </resources>
