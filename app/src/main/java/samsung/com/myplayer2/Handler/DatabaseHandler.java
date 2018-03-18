@@ -64,7 +64,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Add new Playlist
-    void addPlaylist(Playlist playlist) {
+    public void addPlaylist(Playlist playlist) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -76,7 +76,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     //Add song to Playlist
-    void addSongToPlaylist(String songId, String playlistId) {
+    public void addSongToPlaylist(String songId, String playlistId) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -130,5 +130,41 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 " WHERE " + KEY_PLID + " LIKE '" + new String[]{String.valueOf(playlist.getListid())} + "'";
         db.execSQL(query);
         db.close();
+    }
+
+    //Count all Playlist
+    public int CountList() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_PLAYLIST;
+        Cursor cursor = db.rawQuery(query, null);
+        return cursor.getCount();
+    }
+
+    public boolean CheckPlaylistExist(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + KEY_PLNAME + " FROM " + TABLE_PLAYLIST +
+                " WHERE " + KEY_PLNAME + " LIKE '" + name + "'";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.getCount() <= 0) {
+            cursor.close();
+            return false;
+        } else {
+            cursor.close();
+            return true;
+        }
+    }
+
+    public boolean CheckSongAdded(String songId, String listId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_SONGID +
+                " WHERE " + KEY_PLID + " LIKE '" + listId + "' AND " + KEY_SONGID + " LIKE '" + songId + "'";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.getCount() <= 0) {
+            cursor.close();
+            return false;
+        } else {
+            cursor.close();
+            return true;
+        }
     }
 }

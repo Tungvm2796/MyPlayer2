@@ -44,6 +44,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     Button btnAdd;
     ArrayList<Playlist> playlists;
     EditText edt;
+    RecyclerPlaylistAdapter recyclerPlaylistAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,7 +60,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         playListView.setLayoutManager(mManager);
-        RecyclerPlaylistAdapter recyclerPlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
+        recyclerPlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
         recyclerPlaylistAdapter.setClickListener(this);
         playListView.setAdapter(recyclerPlaylistAdapter);
 
@@ -73,7 +74,20 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Toast.makeText(getActivity(), "Clicked Ok", Toast.LENGTH_SHORT).show();
+                if(edt.getText() != null) {
+                    if(!db.CheckPlaylistExist(edt.getText().toString())){
+                        db.addPlaylist(new Playlist(Integer.toString(db.CountList()+1), edt.getText().toString()));
+                        playlists.clear();
+                        playlists = db.getAllList();
+                        recyclerPlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
+                        playListView.setAdapter(recyclerPlaylistAdapter);
+                        Toast.makeText(getActivity(), "Added new Playlist", Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(getActivity(), "Playlist Already Exist !", Toast.LENGTH_SHORT).show();
+                    }
+                }else {
+                    Toast.makeText(getActivity(), "Please enter Playlist Name", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

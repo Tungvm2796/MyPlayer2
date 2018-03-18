@@ -61,7 +61,7 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
         Playlist curPlayList = playList.get(position);
 
         holder.ListName.setText(curPlayList.getName());
-        Glide.with(mContext).load(R.drawable.lantern_music_player_icon).into(holder.ListImg);
+        Glide.with(mContext).load(R.drawable.playlist).into(holder.ListImg);
 
     }
 
