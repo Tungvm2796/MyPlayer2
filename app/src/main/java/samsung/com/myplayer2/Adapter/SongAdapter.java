@@ -52,6 +52,7 @@ public class SongAdapter extends BaseAdapter{
 
     private ArrayList<Song> songs;
     private LayoutInflater songInf;
+
     public SongAdapter(Context c, ArrayList<Song> theSongs){
         songs=theSongs;
         songInf=LayoutInflater.from(c);
