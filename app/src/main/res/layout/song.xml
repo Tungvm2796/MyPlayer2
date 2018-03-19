@@ -6,25 +6,29 @@
     android:padding="5dp"
     android:paddingBottom="5dp">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/layer2"
         android:layout_width="match_parent"
         android:layout_height="65dp"
+        android:orientation="horizontal"
         android:paddingBottom="5dp">
 
         <ImageView
             android:id="@+id/coverImg"
             android:layout_width="55dp"
             android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
             android:layout_gravity="left"
             android:layout_marginRight="5dp"
+            android:contentDescription="Image"
             android:padding="5dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="Image"/>
+            android:scaleType="centerCrop" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_toLeftOf="@+id/menuSong"
+            android:layout_toRightOf="@+id/coverImg"
             android:orientation="vertical">
 
             <TextView
@@ -33,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="left"
                 android:textColor="#ffffff"
-                android:textSize="17dp" />
+                android:textSize="17sp" />
 
             <TextView
                 android:id="@+id/song_artist"
@@ -42,6 +46,14 @@
                 android:layout_below="@+id/song_title"
                 android:gravity="left"
                 android:textColor="#bfb2b2" />
+
         </LinearLayout>
-    </LinearLayout>
+
+        <Button
+            android:id="@+id/menuSong"
+            android:layout_width="25dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
 </LinearLayout>

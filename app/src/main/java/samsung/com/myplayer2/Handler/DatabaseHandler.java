@@ -25,13 +25,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "Manager";
 
     // Table name
-    static final String TABLE_PLAYLIST = "Playlist";
-    static final String TABLE_SONGID = "SongId";
+    private static final String TABLE_PLAYLIST = "Playlist";
+    private static final String TABLE_SONGID = "SongId";
 
     // Table Columns names
-    static final String KEY_PLID = "PlaylistId";
-    static final String KEY_PLNAME = "PlaylistName";
-    static final String KEY_SONGID = "SongId";
+    private static final String KEY_PLID = "PlaylistId";
+    private static final String KEY_PLNAME = "PlaylistName";
+    private static final String KEY_SONGID = "SongId";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -103,7 +103,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 returnlist.add(playlist);
             } while (cursor.moveToNext());
         }
-
+        cursor.close();
         return returnlist;
     }
 
@@ -120,15 +120,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 returnList.add(cursor.getString(0));
             } while (cursor.moveToNext());
         }
+        cursor.close();
         return returnList;
     }
 
     // Deleting single Playlist
     public void deletePPlaylist(Playlist playlist) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "DELETE FROM " + TABLE_PLAYLIST +
-                " WHERE " + KEY_PLID + " LIKE '" + new String[]{String.valueOf(playlist.getListid())} + "'";
-        db.execSQL(query);
+        db.delete(TABLE_PLAYLIST, KEY_PLID + " = ?",
+                new String[]{String.valueOf(playlist.getListid())});
         db.close();
     }
 
@@ -166,5 +166,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             cursor.close();
             return true;
         }
+    }
+
+    public int getMaxId() {
+        int num = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_PLAYLIST + " ORDER BY " + KEY_PLID + " DESC LIMIT 1";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                num = Integer.parseInt(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return num;
     }
 }

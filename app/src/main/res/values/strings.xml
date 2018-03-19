@@ -17,4 +17,8 @@
 
     <string name="pause">Pause</string>
 
+    <string name="addToPlayList">Add To Playlist</string>
+
+    <string name="details">Details</string>
+
 </resources>

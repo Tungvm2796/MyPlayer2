@@ -48,7 +48,7 @@ import samsung.com.myplayer2.Service.MyService;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SongListFragment extends Fragment {
+public class SongListFragment extends Fragment{
     public SongListFragment() {
         // Required empty public constructor
     }
@@ -73,7 +73,6 @@ public class SongListFragment extends Fragment {
     MyService myService;
     private boolean musicBound = false;
     private Intent playintent;
-    public static ImageButton btnPP;
     TextView textTimeSong;
     TextView textTotal;
     SeekBar seekBar;
@@ -106,8 +105,6 @@ public class SongListFragment extends Fragment {
 
         songView = (RecyclerView) v.findViewById(R.id.song_list);
 
-        btnPP = (ImageButton) getActivity().findViewById(R.id.btn_play_pause);
-
         btnsearch = (ImageButton) v.findViewById(R.id.btnsearch);
 
         textTimeSong = (TextView) getActivity().findViewById(R.id.time_song);
@@ -124,9 +121,9 @@ public class SongListFragment extends Fragment {
 
         setRetainInstance(true);
 
-        SongList = new ArrayList<Song>();
+        SongList = new ArrayList<>();
 
-        SongFilterList = new ArrayList<Song>();
+        SongFilterList = new ArrayList<>();
 
         getSongList();
 

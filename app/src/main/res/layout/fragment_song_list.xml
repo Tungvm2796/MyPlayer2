@@ -26,13 +26,13 @@
             android:textColor="#ffffff" />
 
         <ImageButton
+            android:id="@+id/btnsearch"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginLeft="10dp"
-            android:id="@+id/btnsearch"
-            android:src="@drawable/searchw"
+            android:background="@android:color/transparent"
             android:scaleType="centerCrop"
-            android:background="@android:color/transparent"/>
+            android:src="@drawable/searchw" />
     </LinearLayout>
 
     <android.support.v7.widget.RecyclerView

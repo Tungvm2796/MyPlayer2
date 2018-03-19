@@ -12,11 +12,15 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,7 +34,7 @@ import samsung.com.myplayer2.Service.MyService;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapter.ItemClickListener{
+public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapter.ItemClickListener {
 
 
     public PlaylistFragment() {
@@ -41,10 +45,15 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     private boolean musicBound = false;
     private Intent playIntent;
     RecyclerView playListView;
-    Button btnAdd;
+    Button btnViewSong;
+    Button btnLay2;
+    ImageButton btnAdd;
     ArrayList<Playlist> playlists;
     EditText edt;
-    RecyclerPlaylistAdapter recyclerPlaylistAdapter;
+    RecyclerPlaylistAdapter PlaylistAdapter;
+    LinearLayout lin1;
+    LinearLayout lin2;
+    int pos;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,17 +61,23 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_playlist, container, false);
 
-        btnAdd = (Button) v.findViewById(R.id.btnSonginList);
+        btnViewSong = (Button) v.findViewById(R.id.btnSonginList);
         playListView = (RecyclerView) v.findViewById(R.id.PlayListView);
+        btnAdd = (ImageButton) v.findViewById(R.id.btnAddPlaylist);
+        btnLay2 = (Button) v.findViewById(R.id.btnlay2);
+
+        lin1 = (LinearLayout) v.findViewById(R.id.lin1);
+        lin2 = (LinearLayout) v.findViewById(R.id.lin2);
 
         final DatabaseHandler db = new DatabaseHandler(getActivity());
         playlists = db.getAllList();
 
+
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         playListView.setLayoutManager(mManager);
-        recyclerPlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
-        recyclerPlaylistAdapter.setClickListener(this);
-        playListView.setAdapter(recyclerPlaylistAdapter);
+        PlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
+        PlaylistAdapter.setClickListener(this);
+        playListView.setAdapter(PlaylistAdapter);
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogTheme);
         alertDialog.setTitle("Add new Playlist");
@@ -71,34 +86,56 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         edt = new EditText(getActivity());
         alertDialog.setView(edt);
 
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
         alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if(edt.getText() != null) {
-                    if(!db.CheckPlaylistExist(edt.getText().toString())){
-                        db.addPlaylist(new Playlist(Integer.toString(db.CountList()+1), edt.getText().toString()));
+                if (edt.getText().toString().trim().length() != 0) {
+                    if (!db.CheckPlaylistExist(edt.getText().toString())) {
+                        db.addPlaylist(new Playlist(Integer.toString(db.getMaxId() + 1), edt.getText().toString()));
                         playlists.clear();
                         playlists = db.getAllList();
-                        recyclerPlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
-                        playListView.setAdapter(recyclerPlaylistAdapter);
+                        PlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
+                        PlaylistAdapter.setClickListener(PlaylistFragment.this);
+                        playListView.setAdapter(PlaylistAdapter);
                         Toast.makeText(getActivity(), "Added new Playlist", Toast.LENGTH_SHORT).show();
-                    }else {
+                    } else {
                         Toast.makeText(getActivity(), "Playlist Already Exist !", Toast.LENGTH_SHORT).show();
                     }
-                }else {
+                } else {
                     Toast.makeText(getActivity(), "Please enter Playlist Name", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        alertDialog.setNegativeButton("Cancel", null);
-
-         final AlertDialog alert = alertDialog.create();
+        final AlertDialog alert = alertDialog.create();
 
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alert.show();
+            }
+        });
+
+        btnViewSong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lin1.setVisibility(View.INVISIBLE);
+                lin2.setVisibility(View.VISIBLE);
+            }
+        });
+
+        btnLay2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lin1.setVisibility(View.VISIBLE);
+                lin2.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -142,5 +179,58 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     @Override
     public void onItemClick(View view, int position) {
 
+    }
+
+    @Override
+    public void onItemLongClick(View view, int position) {
+        registerForContextMenu(playListView);
+        pos = position;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Select The Action");
+        menu.add(0, v.getId(), 0, "Change Playlist Name");//groupId, itemId, order, title
+        menu.add(0, v.getId(), 0, "Delete Playlist");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        if (item.getTitle() == "Change Playlist Name")
+            Toast.makeText(getActivity(), "Will be done later", Toast.LENGTH_SHORT).show();
+        else if (item.getTitle() == "Delete Playlist") {
+            AlertDialog.Builder aat = new AlertDialog.Builder(getActivity());
+            aat.setTitle("Delete ?")
+                    .setMessage("Are you sure to delete ?")
+                    .setCancelable(true)
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // TODO Auto-generated method stub
+                            dialog.cancel();
+                        }
+                    })
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+
+                                    DatabaseHandler db2 = new DatabaseHandler(getActivity());
+                                    db2.deletePPlaylist(playlists.get(pos));
+                                    playlists = db2.getAllList();
+                                    PlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
+                                    PlaylistAdapter.setClickListener(PlaylistFragment.this);
+                                    playListView.setAdapter(PlaylistAdapter);
+                                    Toast.makeText(getActivity(), "Playlist removed", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                    );
+            AlertDialog art = aat.create();
+            art.show();
+        } else {
+            return false;
+        }
+        return true;
     }
 }

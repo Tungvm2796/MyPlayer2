@@ -30,7 +30,7 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
         this.playList = PList;
     }
 
-    public class MyRecyclerHolder3 extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class MyRecyclerHolder3 extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         TextView ListName;
         ImageView ListImg;
 
@@ -40,6 +40,7 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
             ListName = (TextView) ListLay.findViewById(R.id.list_name);
             ListImg = (ImageView) ListLay.findViewById(R.id.list_img);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
 
         }
 
@@ -47,6 +48,13 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
         public void onClick(View view) {
             if (mClickListener != null)
                 mClickListener.onItemClick(view, getAdapterPosition());
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            if (mClickListener != null)
+                mClickListener.onItemLongClick(view, getAdapterPosition());
+            return false;
         }
     }
 
@@ -78,6 +86,7 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
+        void onItemLongClick(View view, int position);
     }
 
 }

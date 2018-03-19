@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     MyService myService;
     private boolean musicBound = false;
     private Intent playintent;
-    ImageButton btnPlayPause;
+    public static ImageButton btnPlayPause;
     ImageButton next;
     ImageButton prev;
     ImageButton shuffle;

@@ -42,7 +42,7 @@ import samsung.com.myplayer2.Service.MyService;
  * A simple {@link Fragment} subclass.
  */
 
-public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.ItemClickListener {
+public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.AlbumClickListener {
 
 
     public AlbumFragment() {
@@ -114,7 +114,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Item
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         albumView.setLayoutManager(mManager);
         RecyclerAlbumAdapter albumAdt = new RecyclerAlbumAdapter(getContext(), albumList);
-        albumAdt.setClickListener(this);
+        albumAdt.setAlbumClickListener(this);
         albumView.setAdapter(albumAdt);
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());

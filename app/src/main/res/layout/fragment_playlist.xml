@@ -5,25 +5,94 @@
     tools:context="samsung.com.myplayer2.Fragments.PlaylistFragment">
 
     <LinearLayout
+        android:id="@+id/lin1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/lin1"
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/btnSonginList"
             android:layout_width="90dp"
             android:layout_height="40dp"
-            android:id="@+id/btnSonginList"
-            android:text="Click me"/>
+            android:text="Click me" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp">
+
+            <ImageButton
+                android:id="@+id/btnAddPlaylist"
+                android:layout_width="170dp"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:background="@color/colorPrimary"
+                android:layout_alignParentLeft="true"
+                android:contentDescription="Image"/>
+
+            <TextView
+                android:id="@+id/xemthu"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_alignParentRight="true"
+                android:textColor="#000000"/>
+
+        </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="450dp"
             android:id="@+id/PlayListView"
-            android:scrollbars="vertical"
-            android:nestedScrollingEnabled="false">
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:nestedScrollingEnabled="false"
+            android:scrollbars="vertical">
 
         </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lin2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <Button
+            android:id="@+id/btnlay2"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:text="Back" />
+
+        <ImageView
+            android:id="@+id/PlaylistCover"
+            android:layout_width="match_parent"
+            android:layout_height="290dp"
+            android:contentDescription="Image"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp">
+
+            <TextView
+                android:id="@+id/xemPlaylistId"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignParentLeft="true" />
+
+            <TextView
+                android:id="@+id/numSong"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/song_of_playlist"
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:background="@android:color/holo_green_light"
+            android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
 
     </LinearLayout>
 

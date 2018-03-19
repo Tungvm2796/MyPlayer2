@@ -24,7 +24,7 @@ import samsung.com.myplayer2.R;
 public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdapter.MyRecyclerHolder2> {
 
     private ArrayList<Album> albumList;
-    private ItemClickListener mClickListener;
+    private AlbumClickListener mClickListener;
     Context mContext;
 
     public RecyclerAlbumAdapter(Context context, ArrayList<Album> albumList) {
@@ -75,12 +75,12 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
     }
 
     // allows clicks events to be caught
-    public void setClickListener(ItemClickListener itemClickListener) {
+    public void setAlbumClickListener(AlbumClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
     // parent activity will implement this method to respond to click events
-    public interface ItemClickListener {
+    public interface AlbumClickListener {
         void onItemClick(View view, int position);
     }
 

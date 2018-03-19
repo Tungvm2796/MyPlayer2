@@ -36,7 +36,6 @@ import java.util.Random;
 import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
-import samsung.com.myplayer2.Fragments.SongListFragment;
 import samsung.com.myplayer2.R;
 
 /*
@@ -165,7 +164,7 @@ public class MyService extends Service implements
         seekPro = new WeakReference<>(MainActivity.seekBar);
         txtCurTime = new WeakReference<>(MainActivity.txtTimeSong);
         txtTotal = new WeakReference<>(MainActivity.txtTotal);
-        btnPayPause = new WeakReference<>(SongListFragment.btnPP);
+        btnPayPause = new WeakReference<>(MainActivity.btnPlayPause);
     }
 
     public void initMusicPlayer() {
