@@ -133,10 +133,11 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         case 1:
                             myService.setListNumber(2);
-                            songAdapter.setOnPlaylist(1);
+                            songAdapter.setOnPlaylist(0);
                             break;
                         case 2:
                             myService.setListNumber(3);
+                            songAdapter.setOnPlaylist(0);
                             break;
                         case 3:
                             myService.setListNumber(4);

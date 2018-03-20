@@ -199,11 +199,16 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         lin1.setVisibility(View.INVISIBLE);
         lin2.setVisibility(View.VISIBLE);
 
+        songIdArray.clear();
+        songInPlaylist.setAdapter(null);
+        songOfPlaylist.clear();
+
         songIdArray = db.GetSongIdArray(playlists.get(position).getListid());
-        for (int i=0; i<AllSong.size(); i++){
-            for (int j=0; j<songIdArray.size(); j++){
-                if(Long.getLong(songIdArray.get(j)) == AllSong.get(i).getID()) {
-                    songOfPlaylist.add(AllSong.get(i));
+
+        for (int i=0; i<songIdArray.size(); i++){
+            for (int j=0; j<AllSong.size(); j++){
+                if(songIdArray.get(i).equals(Long.toString(AllSong.get(j).getID()))) {
+                    songOfPlaylist.add(AllSong.get(j));
                     break;
                 }
             }
@@ -213,6 +218,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
         songInPlaylist.setLayoutManager(mManager);
         songInPlaylist.setAdapter(songAdapterPlaylist);
+        myService.setSongListFrag4(songOfPlaylist);
     }
 
     @Override

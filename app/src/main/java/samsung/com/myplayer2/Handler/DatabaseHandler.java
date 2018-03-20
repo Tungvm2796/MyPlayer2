@@ -111,13 +111,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public ArrayList<String> GetSongIdArray(String listId) {
         ArrayList<String> returnList = new ArrayList<>();
 
-        String query = "SELECT " + KEY_SONGID + " FROM " + TABLE_SONGID +
+        String query = "SELECT * FROM " + TABLE_SONGID +
                 " WHERE " + KEY_PLID + " LIKE '" + listId + "'";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
             do {
-                returnList.add(cursor.getString(0));
+                returnList.add(cursor.getString(1));
             } while (cursor.moveToNext());
         }
         cursor.close();
@@ -176,6 +176,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 num = Integer.parseInt(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return num;
+    }
+
+    public String getIdByName(String Name) {
+        String num = "";
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_PLAYLIST + " WHERE " + KEY_PLNAME + " LIKE '" + Name + "'";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                num = cursor.getString(0);
             } while (cursor.moveToNext());
         }
         cursor.close();
