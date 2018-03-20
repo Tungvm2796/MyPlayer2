@@ -586,10 +586,6 @@ public class MyService extends Service implements
         SongListFrag4 = songListFrag4;
     }
 
-    public void setListNumber(int num) {
-        ListNumber = num;
-    }
-
     public ArrayList<Song> getSongListFrag1() {
         return SongListFrag1;
     }
@@ -604,5 +600,9 @@ public class MyService extends Service implements
 
     public ArrayList<Song> getSongListFrag4() {
         return SongListFrag4;
+    }
+
+    public void setListNumber(int num) {
+        ListNumber = num;
     }
 }

@@ -21,4 +21,6 @@
 
     <string name="details">Details</string>
 
+    <string name="removeFromPlaylist">Remove from Playlist</string>
+
 </resources>

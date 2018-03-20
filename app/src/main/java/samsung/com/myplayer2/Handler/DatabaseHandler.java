@@ -125,7 +125,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     // Deleting single Playlist
-    public void deletePPlaylist(Playlist playlist) {
+    public void deletePlaylist(Playlist playlist) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_PLAYLIST, KEY_PLID + " = ?",
                 new String[]{String.valueOf(playlist.getListid())});
@@ -180,5 +180,19 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         cursor.close();
         return num;
+    }
+
+    public ArrayList<String> GetAllPlaylistName() {
+        ArrayList<String> listName = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + KEY_PLNAME + " FROM " + TABLE_PLAYLIST;
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            do {
+                listName.add(cursor.getString(0));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return listName;
     }
 }

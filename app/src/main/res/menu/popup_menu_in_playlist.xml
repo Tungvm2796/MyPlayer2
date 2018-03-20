@@ -2,12 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action1"
+        android:id="@+id/action_in_pl_1"
         android:orderInCategory="100"
-        android:title="@string/addToPlayList"
+        android:title="@string/removeFromPlaylist"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action2"
+        android:id="@+id/action_in_pl_2"
         android:orderInCategory="100"
         android:title="@string/details"
         app:showAsAction="never" />

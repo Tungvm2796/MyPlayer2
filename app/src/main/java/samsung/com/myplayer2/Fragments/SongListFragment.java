@@ -1,22 +1,14 @@
 package samsung.com.myplayer2.Fragments;
 
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.PorterDuff;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,10 +29,9 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
+import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
@@ -48,17 +39,9 @@ import samsung.com.myplayer2.Service.MyService;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SongListFragment extends Fragment{
+public class SongListFragment extends Fragment {
     public SongListFragment() {
         // Required empty public constructor
-    }
-
-    public void SortByName() {
-        Collections.sort(SongList, new Comparator<Song>() {
-            public int compare(Song a, Song b) {
-                return a.getTitle().compareTo(b.getTitle());
-            }
-        });
     }
 
     public ArrayList<Song> SongList;
@@ -67,8 +50,6 @@ public class SongListFragment extends Fragment{
     EditText searchbox;
     Context context;
     Animation animation;
-    ImageButton nowplaying;
-    int playornot = 0;
 
     MyService myService;
     private boolean musicBound = false;
@@ -77,6 +58,8 @@ public class SongListFragment extends Fragment{
     TextView textTotal;
     SeekBar seekBar;
     ImageButton btnsearch;
+
+    Function function;
 
     public void SetTimeTotal() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
@@ -103,6 +86,8 @@ public class SongListFragment extends Fragment{
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_song_list, container, false);
 
+        function = new Function();
+
         songView = (RecyclerView) v.findViewById(R.id.song_list);
 
         btnsearch = (ImageButton) v.findViewById(R.id.btnsearch);
@@ -125,7 +110,7 @@ public class SongListFragment extends Fragment{
 
         SongFilterList = new ArrayList<>();
 
-        getSongList();
+        function.getSongList(getActivity(), SongList);
 
         final RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), SongList);
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
@@ -238,69 +223,6 @@ public class SongListFragment extends Fragment{
         return v;
     }
 
-    Bitmap GetBitmap(String filePath) {
-        Bitmap image;
-        MediaMetadataRetriever mData = new MediaMetadataRetriever();
-        mData.setDataSource(filePath);
-        try {
-            byte art[] = mData.getEmbeddedPicture();
-            image = BitmapFactory.decodeByteArray(art, 0, art.length);
-        } catch (Exception e) {
-            image = null;
-        }
-        return image;
-    }
-
-    public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
-        if (bm == null)
-            return bm;
-        else {
-            int width = bm.getWidth();
-            int height = bm.getHeight();
-            float scaleWidth = ((float) newWidth) / width;
-            float scaleHeight = ((float) newHeight) / height;
-            // CREATE A MATRIX FOR THE MANIPULATION
-            Matrix matrix = new Matrix();
-            // RESIZE THE BIT MAP
-            matrix.postScale(scaleWidth, scaleHeight);
-
-            // "RECREATE" THE NEW BITMAP
-            Bitmap resizedBitmap = Bitmap.createBitmap(
-                    bm, 0, 0, width, height, matrix, false);
-            bm.recycle();
-            return resizedBitmap;
-        }
-    }
-
-    public void getSongList() {
-        //retrieve song info
-        ContentResolver musicResolver = getActivity().getContentResolver();
-        Uri musicUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        String select = MediaStore.Audio.Media.DURATION + ">=30000";
-        Cursor musicCursor = musicResolver.query(musicUri, null, select, null, null);
-        if (musicCursor != null && musicCursor.moveToFirst()) {
-            //get collumn
-            int titleColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media._ID);
-            int artisColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-            int albumIdColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
-            //add song to list
-            do {
-                long thisId = musicCursor.getLong(idColumn);
-                String thisTitle = musicCursor.getString(titleColumn);
-                String thisArtis = musicCursor.getString(artisColumn);
-                String thisData = musicCursor.getString(dataColumn);
-                Bitmap songimg = GetBitmap(thisData);
-                Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
-                long albumId = musicCursor.getLong(albumIdColumn);
-                SongList.add(new Song(thisId, thisTitle, thisArtis, lastimg, thisData, albumId));
-            }
-            while (musicCursor.moveToNext());
-        }
-        SortByName();
-        musicCursor.close();
-    }
 
     public void getSongByName(String entry, ArrayList<Song> entryArray) {
         for (int i = 0; i < entryArray.size(); i++) {

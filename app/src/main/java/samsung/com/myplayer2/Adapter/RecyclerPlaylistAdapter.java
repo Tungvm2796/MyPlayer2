@@ -86,6 +86,7 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
         void onItemClick(View view, int position);
+
         void onItemLongClick(View view, int position);
     }
 

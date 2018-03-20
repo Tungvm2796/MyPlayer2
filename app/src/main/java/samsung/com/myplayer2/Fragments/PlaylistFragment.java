@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -26,7 +27,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.RecyclerPlaylistAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
+import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Playlist;
+import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
@@ -45,15 +49,22 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     private boolean musicBound = false;
     private Intent playIntent;
     RecyclerView playListView;
+    RecyclerView songInPlaylist;
     Button btnViewSong;
     Button btnLay2;
     ImageButton btnAdd;
     ArrayList<Playlist> playlists;
     EditText edt;
     RecyclerPlaylistAdapter PlaylistAdapter;
+    RecyclerSongAdapter songAdapterPlaylist;
     LinearLayout lin1;
     LinearLayout lin2;
+    ArrayList<Song> songOfPlaylist;
+    ArrayList<Song> AllSong;
+    ArrayList<String> songIdArray;
     int pos;
+    Function function;
+    DatabaseHandler db;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,16 +72,23 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_playlist, container, false);
 
+        function = new Function();
+
         btnViewSong = (Button) v.findViewById(R.id.btnSonginList);
         playListView = (RecyclerView) v.findViewById(R.id.PlayListView);
         btnAdd = (ImageButton) v.findViewById(R.id.btnAddPlaylist);
         btnLay2 = (Button) v.findViewById(R.id.btnlay2);
+        songInPlaylist = (RecyclerView) v.findViewById(R.id.song_in_playlist);
 
         lin1 = (LinearLayout) v.findViewById(R.id.lin1);
         lin2 = (LinearLayout) v.findViewById(R.id.lin2);
 
-        final DatabaseHandler db = new DatabaseHandler(getActivity());
+        db = new DatabaseHandler(getActivity());
         playlists = db.getAllList();
+        songIdArray = new ArrayList<>();
+        songOfPlaylist = new ArrayList<>();
+        AllSong = new ArrayList<>();
+        function.getSongList(getActivity(), AllSong);
 
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
@@ -178,7 +196,23 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
 
     @Override
     public void onItemClick(View view, int position) {
+        lin1.setVisibility(View.INVISIBLE);
+        lin2.setVisibility(View.VISIBLE);
 
+        songIdArray = db.GetSongIdArray(playlists.get(position).getListid());
+        for (int i=0; i<AllSong.size(); i++){
+            for (int j=0; j<songIdArray.size(); j++){
+                if(Long.getLong(songIdArray.get(j)) == AllSong.get(i).getID()) {
+                    songOfPlaylist.add(AllSong.get(i));
+                    break;
+                }
+            }
+        }
+
+        songAdapterPlaylist = new RecyclerSongAdapter(getActivity(), songOfPlaylist);
+        RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
+        songInPlaylist.setLayoutManager(mManager);
+        songInPlaylist.setAdapter(songAdapterPlaylist);
     }
 
     @Override
@@ -216,9 +250,8 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
                                 public void onClick(DialogInterface dialog, int which) {
                                     // TODO Auto-generated method stub
 
-                                    DatabaseHandler db2 = new DatabaseHandler(getActivity());
-                                    db2.deletePPlaylist(playlists.get(pos));
-                                    playlists = db2.getAllList();
+                                    db.deletePlaylist(playlists.get(pos));
+                                    playlists = db.getAllList();
                                     PlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
                                     PlaylistAdapter.setClickListener(PlaylistFragment.this);
                                     playListView.setAdapter(PlaylistAdapter);

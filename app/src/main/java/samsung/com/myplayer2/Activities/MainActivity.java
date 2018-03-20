@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     public static SeekBar seekBar;
     ImageView imgDisc;
     String SongPath;
+    RecyclerSongAdapter songAdapter;
 
     public void SetTimeTotal() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
@@ -111,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(myMainBroadcast, toActivity);
 
         imgDisc = (ImageView) findViewById(R.id.imageViewDisc);
+        songAdapter = new RecyclerSongAdapter();
 
         initView();
 
@@ -126,15 +129,21 @@ public class MainActivity extends AppCompatActivity {
                     switch (position) {
                         case 0:
                             myService.setListNumber(1);
+                            songAdapter.setOnPlaylist(0);
                             break;
                         case 1:
                             myService.setListNumber(2);
+                            songAdapter.setOnPlaylist(1);
                             break;
                         case 2:
                             myService.setListNumber(3);
                             break;
                         case 3:
                             myService.setListNumber(4);
+                            songAdapter.setOnPlaylist(1);
+                            break;
+                        case 4:
+                            myService.setListNumber(5);
                             break;
                     }
                 }
