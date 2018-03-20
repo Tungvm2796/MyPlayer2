@@ -1,10 +1,12 @@
 package samsung.com.myplayer2.Fragments;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -71,6 +73,10 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_playlist, container, false);
+
+        IntentFilter toPlaylist = new IntentFilter("ToPlaylist");
+        toPlaylist.addAction("Remove");
+        getActivity().registerReceiver(PlaylistBroadcast, toPlaylist);
 
         function = new Function();
 
@@ -199,26 +205,9 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         lin1.setVisibility(View.INVISIBLE);
         lin2.setVisibility(View.VISIBLE);
 
-        songIdArray.clear();
-        songInPlaylist.setAdapter(null);
-        songOfPlaylist.clear();
+        RenewListSongOfPlaylist(position);
 
-        songIdArray = db.GetSongIdArray(playlists.get(position).getListid());
-
-        for (int i=0; i<songIdArray.size(); i++){
-            for (int j=0; j<AllSong.size(); j++){
-                if(songIdArray.get(i).equals(Long.toString(AllSong.get(j).getID()))) {
-                    songOfPlaylist.add(AllSong.get(j));
-                    break;
-                }
-            }
-        }
-
-        songAdapterPlaylist = new RecyclerSongAdapter(getActivity(), songOfPlaylist);
-        RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
-        songInPlaylist.setLayoutManager(mManager);
-        songInPlaylist.setAdapter(songAdapterPlaylist);
-        myService.setSongListFrag4(songOfPlaylist);
+        pos = position;
     }
 
     @Override
@@ -271,5 +260,60 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
             return false;
         }
         return true;
+    }
+
+    BroadcastReceiver PlaylistBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String plid = playlists.get(pos).getListid();
+            final Long songid = intent.getLongExtra("songid", 0);
+
+            AlertDialog.Builder aat = new AlertDialog.Builder(getActivity());
+            aat.setTitle("Delete ?")
+                    .setMessage("Are you sure to delete ?")
+                    .setCancelable(true)
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // TODO Auto-generated method stub
+                            dialog.cancel();
+                        }
+                    })
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    db.RemoveSongFromPlaylist(plid, Long.toString(songid));
+                                    RenewListSongOfPlaylist(pos);
+                                    Toast.makeText(getActivity(), "Song removed", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                    );
+            AlertDialog art = aat.create();
+            art.show();
+        }
+    };
+
+    public void RenewListSongOfPlaylist(int position) {
+        songIdArray.clear();
+        songInPlaylist.setAdapter(null);
+        songOfPlaylist.clear();
+
+        songIdArray = db.GetSongIdArray(playlists.get(position).getListid());
+
+        for (int i = 0; i < songIdArray.size(); i++) {
+            for (int j = 0; j < AllSong.size(); j++) {
+                if (songIdArray.get(i).equals(Long.toString(AllSong.get(j).getID()))) {
+                    songOfPlaylist.add(AllSong.get(j));
+                    break;
+                }
+            }
+        }
+
+        songAdapterPlaylist = new RecyclerSongAdapter(getActivity(), songOfPlaylist);
+        RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
+        songInPlaylist.setLayoutManager(mManager);
+        songInPlaylist.setAdapter(songAdapterPlaylist);
+        myService.setSongListFrag4(songOfPlaylist);
     }
 }

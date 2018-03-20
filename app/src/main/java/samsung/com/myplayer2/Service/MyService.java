@@ -22,6 +22,7 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ import java.util.Random;
 import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
+import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 
 /*
@@ -88,6 +90,11 @@ public class MyService extends Service implements
     public static WeakReference<TextView> txtTotal;
     public static WeakReference<TextView> txtCurTime;
     public static WeakReference<ImageButton> btnPayPause;
+    public static WeakReference<TextView> txtTitle;
+    public static WeakReference<TextView> txtArtist;
+    public static WeakReference<ImageView> songCover;
+
+    DatabaseHandler db;
 
     public void onCreate() {
         //create the service
@@ -306,8 +313,6 @@ public class MyService extends Service implements
         PendingIntent pcloseIntent = PendingIntent.getService(this, 0, closeIntent, 0);
 
         Notification.Builder builder = new Notification.Builder(this);
-
-        Notification.MediaStyle style = new Notification.MediaStyle();
 
         builder.setContentIntent(pendInt)
                 .setSmallIcon(R.drawable.ic_play_circle_outline_white_24dp)
@@ -604,5 +609,9 @@ public class MyService extends Service implements
 
     public void setListNumber(int num) {
         ListNumber = num;
+    }
+
+    public Song getCurSong(){
+        return songs.get(songPosn);
     }
 }
