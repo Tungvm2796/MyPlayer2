@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
-import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
@@ -62,10 +61,6 @@ public class SongListFragment extends Fragment {
     ImageButton btnsearch;
 
     Function function;
-
-    int id;
-
-    DatabaseHandler db = new DatabaseHandler(getActivity());
 
     public void SetTimeTotal() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");

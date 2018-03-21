@@ -27,7 +27,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // Table name
     private static final String TABLE_PLAYLIST = "Playlist";
     private static final String TABLE_SONGID = "SongId";
-    private static final String TABLE_CURSONGID = "CurrentSongId";
 
     // Table Columns names
     private static final String KEY_PLID = "PlaylistId";
@@ -47,14 +46,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_PLAYLIST_TABLE = "CREATE TABLE " + TABLE_PLAYLIST + "("
                 + KEY_PLID + " TEXT PRIMARY KEY,"
                 + KEY_PLNAME + " TEXT" + ")";
+
         String CREATE_SONGID_TABLE = "CREATE TABLE " + TABLE_SONGID + "("
                 + KEY_PLID + " TEXT,"
                 + KEY_SONGID + " TEXT," + "PRIMARY KEY(" + KEY_PLID + ", " + KEY_SONGID + ")" + ")";
-        String CREATE_CURSONGID_TABLE = "CREATE TABLE " + TABLE_CURSONGID + "("
-                + KEY_SONGID + " TEXT PRIMARY KEY" + ")";
+
         db.execSQL(CREATE_PLAYLIST_TABLE);
         db.execSQL(CREATE_SONGID_TABLE);
-        db.execSQL(CREATE_CURSONGID_TABLE);
     }
 
     @Override
@@ -220,40 +218,5 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 " WHERE " + KEY_PLID + " = '" + PlayID + "' AND " + KEY_SONGID + " = '" + SongId + "'";
         db.execSQL(query);
         db.close();
-    }
-
-    public void InsertCurID(String id){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(KEY_SONGID, id);
-        db.insert(TABLE_CURSONGID, null, values);
-    }
-
-    public String GetCurID(){
-        String num = "";
-        SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_CURSONGID;
-        Cursor cursor = db.rawQuery(query, null);
-        if (cursor.moveToFirst()) {
-            do {
-                num = cursor.getString(0);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return num;
-    }
-
-    public void UpdateCurSong(String value, String id){
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(KEY_SONGID, value);
-        db.update(TABLE_CURSONGID, cv, KEY_SONGID + "=" + id, null);
-    }
-
-    public int CountCur(){
-        SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_CURSONGID;
-        Cursor cursor = db.rawQuery(query, null);
-        return cursor.getCount();
     }
 }

@@ -9,6 +9,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -16,13 +17,13 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -90,9 +91,8 @@ public class MyService extends Service implements
     public static WeakReference<TextView> txtTotal;
     public static WeakReference<TextView> txtCurTime;
     public static WeakReference<ImageButton> btnPayPause;
-    public static WeakReference<TextView> txtTitle;
-    public static WeakReference<TextView> txtArtist;
-    public static WeakReference<ImageView> songCover;
+    SharedPreferences shared;
+    SharedPreferences.Editor editor;
 
     DatabaseHandler db;
 
@@ -107,6 +107,9 @@ public class MyService extends Service implements
         player = new MediaPlayer();
 
         context = this;
+
+        shared = PreferenceManager.getDefaultSharedPreferences(context);
+        editor = shared.edit();
 
         IntentFilter svintent = new IntentFilter("ToService");
         svintent.addAction("SvPlayPause");
@@ -254,6 +257,12 @@ public class MyService extends Service implements
         setup.putExtra("artist", songArtist);
         setup.putExtra("songpath", playSong.getData());
         sendBroadcast(setup);
+
+        editor.clear();
+        editor.putString("Title", songs.get(songPosn).getTitle());
+        editor.putString("Artist", songs.get(songPosn).getArtist());
+        editor.putString("Path", songs.get(songPosn).getData());
+        editor.apply();
 
         player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -611,7 +620,7 @@ public class MyService extends Service implements
         ListNumber = num;
     }
 
-    public Song getCurSong(){
+    public Song getCurSong() {
         return songs.get(songPosn);
     }
 }

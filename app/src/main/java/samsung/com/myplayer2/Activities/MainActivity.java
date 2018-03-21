@@ -353,12 +353,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-        String saveTitle = settings.getString("curSongName", "0");
-        String saveArtist = settings.getString("curArtist", "0");
-        String savePath = settings.getString("curSongImg", "0");
+        String saveTitle = settings.getString("Title", "0");
+        String saveArtist = settings.getString("Artist", "0");
+        String savePath = settings.getString("Path", "0");
         txtTitle.setText(saveTitle);
         txtArtist.setText(saveArtist);
-        if (savePath != "0")
+        if (!savePath.equals("0"))
             imgDisc.setImageBitmap(GetBitmap(savePath));
 
         super.onResume();
@@ -373,12 +373,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        /*SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("curSongName", myService.getSongTitle());
         editor.putString("curArtist", myService.getSongArtist());
         editor.putString("curSongImg", SongPath);
-        editor.apply();
+        editor.apply();*/
     }
 
     BroadcastReceiver myMainBroadcast = new BroadcastReceiver() {

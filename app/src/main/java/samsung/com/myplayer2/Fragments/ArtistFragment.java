@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 
 
@@ -14,6 +16,9 @@ import samsung.com.myplayer2.R;
  * A simple {@link Fragment} subclass.
  */
 public class ArtistFragment extends Fragment {
+
+    Button btn;
+
 
 
     public ArtistFragment() {
@@ -25,7 +30,12 @@ public class ArtistFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_artist, container, false);
+        View v = inflater.inflate(R.layout.fragment_artist, container, false);
+        btn = (Button) v.findViewById(R.id.btnxemid);
+
+        final DatabaseHandler db = new DatabaseHandler(getActivity());
+
+        return v;
     }
 
 }
