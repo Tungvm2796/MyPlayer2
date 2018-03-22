@@ -206,6 +206,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    if (myService.isPng())
+                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                } else if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    if (myService.isPng())
+                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                }
+            }
+        });
+
+        slidingLayout.setFadeOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
+        });
     }
 
     private void initView() {
@@ -239,8 +263,9 @@ public class MainActivity extends AppCompatActivity {
         slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
 
         //some "demo" event
-        slidingLayout.setPanelSlideListener(onSlideListener());
-        slidingLayout.getChildAt(1).setOnClickListener(null);
+        //slidingLayout.setPanelSlideListener(onSlideListener());
+
+        slidingLayout.setDragView(findViewById(R.id.dragview));
 
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         next = (ImageButton) findViewById(R.id.btn_next);
@@ -266,10 +291,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private SlidingUpPanelLayout.PanelSlideListener onSlideListener() {
+
+ /*   private SlidingUpPanelLayout.PanelSlideListener onSlideListener() {
         return new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View view, float v) {
+
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
 
             }
 
@@ -295,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
-    }
+    }*/
 
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
@@ -412,6 +443,17 @@ public class MainActivity extends AppCompatActivity {
             image = null;
         }
         return image;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (slidingLayout != null &&
+                (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
+                        slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
+            slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else {
+            super.onBackPressed();
+        }
     }
 
 }
