@@ -13,7 +13,6 @@ import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -21,18 +20,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arlib.floatingsearchview.FloatingSearchView;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
@@ -42,15 +39,14 @@ import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private ArrayList<Song> MainSongList;
 
-    private ListView songView;
-
     Context context;
 
-    EditText searchbox;
+    SlidingUpPanelLayout slidingLayout;
+    FloatingSearchView searchView;
 
     ViewPager viewPager;
     CustomPagerAdapter customPagerAdapter;
@@ -58,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     SmartTabLayout smartTabLayout;
     //PagerTabStrip pagerTabStrip;
-    private SlidingUpPanelLayout slidingLayout;
     MyService myService;
     private boolean musicBound = false;
     private Intent playintent;
@@ -77,25 +72,6 @@ public class MainActivity extends AppCompatActivity {
     String SongPath;
     RecyclerSongAdapter songAdapter;
 
-    public void SetTimeTotal() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-        txtTotal.setText(simpleDateFormat.format(myService.getDur()));
-        seekBar.setMax(myService.getDur());
-    }
-
-    public void UpdateTimeSong() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-                txtTimeSong.setText(simpleDateFormat.format(myService.getPosn()));
-                seekBar.setProgress(myService.getPosn());
-                handler.postDelayed(this, 500);
-            }
-        }, 100);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,10 +88,42 @@ public class MainActivity extends AppCompatActivity {
         toActivity.addAction("StartPlay");
         registerReceiver(myMainBroadcast, toActivity);
 
+        searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
+
+        //set layout slide listener
+        slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        slidingLayout.getChildAt(1).setOnClickListener(null);
+        //slidingLayout.setDragView(findViewById(R.id.dragview));
+
         imgDisc = (ImageView) findViewById(R.id.imageViewDisc);
         songAdapter = new RecyclerSongAdapter();
 
         initView();
+
+        slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                    if (myService.isPng())
+                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                } else if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                    if (myService.isPng())
+                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                }
+            }
+        });
+
+        slidingLayout.setFadeOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            }
+        });
 
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -178,6 +186,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                myService.seek(seekBar.getProgress());
+            }
+        });
+
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -203,31 +228,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 myService.setRepeat();
-            }
-        });
-
-        slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-
-            }
-
-            @Override
-            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-                    if (myService.isPng())
-                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                } else if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                    if (myService.isPng())
-                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                }
-            }
-        });
-
-        slidingLayout.setFadeOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             }
         });
     }
@@ -258,14 +258,6 @@ public class MainActivity extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
 
         FragmentAdapter fragmentAdapter = new FragmentAdapter(fragmentManager, MainActivity.this);
-
-        //set layout slide listener
-        slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-
-        //some "demo" event
-        //slidingLayout.setPanelSlideListener(onSlideListener());
-
-        slidingLayout.setDragView(findViewById(R.id.dragview));
 
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         next = (ImageButton) findViewById(R.id.btn_next);

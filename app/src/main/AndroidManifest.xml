@@ -28,7 +28,7 @@
 
         <service
             android:name=".Service.MyService"
-            android:enabled="true"></service>
+            android:enabled="true" />
 
     </application>
 

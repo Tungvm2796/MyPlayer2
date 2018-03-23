@@ -38,7 +38,6 @@ import java.util.Random;
 import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Class.Constants;
 import samsung.com.myplayer2.Class.Song;
-import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 
 /*
@@ -94,7 +93,6 @@ public class MyService extends Service implements
     SharedPreferences shared;
     SharedPreferences.Editor editor;
 
-    DatabaseHandler db;
 
     public void onCreate() {
         //create the service
@@ -406,13 +404,24 @@ public class MyService extends Service implements
 
     //skip to previous track
     public void playPrev() {
-        songPosn--;
-        if (songPosn < 0) songPosn = songs.size() - 1;
-        playSong(ListNumber);
+        progressHandler.removeCallbacks(run);
+        if (shuffle) {
+            int newSong = songPosn;
+            while (newSong == songPosn) {
+                newSong = rand.nextInt(songs.size());
+            }
+            songPosn = newSong;
+        } else {
+            songPosn--;
+            if (songPosn < 0) songPosn = songs.size() - 1;
+            playSong(ListNumber);
+        }
+        updateProgress();
     }
 
     //skip to next
     public void playNext() {
+        progressHandler.removeCallbacks(run);
         if (!repeat) {
             if (shuffle) {
                 int newSong = songPosn;
@@ -428,6 +437,7 @@ public class MyService extends Service implements
 
         }
         playSong(ListNumber);
+        updateProgress();
     }
 
     //toggle shuffle
@@ -557,16 +567,6 @@ public class MyService extends Service implements
 
     public int SizeList() {
         return songs.size();
-    }
-
-    public boolean isShuffle() {
-        if (shuffle) return true;
-        else return false;
-    }
-
-    public boolean isRepeat() {
-        if (repeat) return true;
-        else return false;
     }
 
     public String GetSongPath() {
