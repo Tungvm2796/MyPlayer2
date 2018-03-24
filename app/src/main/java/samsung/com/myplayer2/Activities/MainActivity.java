@@ -22,11 +22,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
+import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -39,7 +41,7 @@ import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Song> MainSongList;
 
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity{
     ImageButton prev;
     ImageButton shuffle;
     ImageButton repeat;
-    private Intent PPIntent;
     TextView txtArtist;
     TextView txtTitle;
     public static TextView txtTimeSong;
@@ -71,6 +72,9 @@ public class MainActivity extends AppCompatActivity{
     ImageView imgDisc;
     String SongPath;
     RecyclerSongAdapter songAdapter;
+
+    LinearLayout mainlay1;
+    LinearLayout mainlay2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,12 +85,13 @@ public class MainActivity extends AppCompatActivity{
         initPermission();
 
         context = this;
-        MainSongList = new ArrayList<>();
 
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
         registerReceiver(myMainBroadcast, toActivity);
+
+        initView();
 
         searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
 
@@ -97,8 +102,6 @@ public class MainActivity extends AppCompatActivity{
 
         imgDisc = (ImageView) findViewById(R.id.imageViewDisc);
         songAdapter = new RecyclerSongAdapter();
-
-        initView();
 
         slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -161,6 +164,18 @@ public class MainActivity extends AppCompatActivity{
             @Override
             public void onPageScrollStateChanged(int state) {
 
+            }
+        });
+
+        searchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
+            @Override
+            public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
+            }
+
+            @Override
+            public void onSearchAction(String currentQuery) {
+                mainlay1.setVisibility(View.INVISIBLE);
+                mainlay2.setVisibility(View.VISIBLE);
             }
         });
 
@@ -264,6 +279,9 @@ public class MainActivity extends AppCompatActivity{
         prev = (ImageButton) findViewById(R.id.btn_prev);
         shuffle = (ImageButton) findViewById(R.id.btn_shuffle);
         repeat = (ImageButton) findViewById(R.id.btn_repeat);
+
+        mainlay1 = (LinearLayout) findViewById(R.id.mainlay1);
+        mainlay2 = (LinearLayout) findViewById(R.id.mainlay2);
     }
 
     public void initPermission() {
@@ -361,7 +379,7 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
 
-        IntentFilter toActivity = new IntentFilter();
+        IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
         registerReceiver(myMainBroadcast, toActivity);
@@ -443,6 +461,10 @@ public class MainActivity extends AppCompatActivity{
                 (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
                         slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
             slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        } else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
+                (mainlay2.getVisibility() == View.VISIBLE)) {
+            mainlay2.setVisibility(View.INVISIBLE);
+            mainlay1.setVisibility(View.VISIBLE);
         } else {
             super.onBackPressed();
         }

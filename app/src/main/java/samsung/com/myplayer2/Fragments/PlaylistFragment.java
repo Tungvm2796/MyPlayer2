@@ -133,7 +133,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
                         Toast.makeText(getActivity(), "Playlist Already Exist !", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getActivity(), "Please enter Playlist Name", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Playlist name can not be Null", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -316,4 +316,11 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         songInPlaylist.setAdapter(songAdapterPlaylist);
         myService.setSongListFrag4(songOfPlaylist);
     }
+
+    @Override
+    public void onStop() {
+        getActivity().unregisterReceiver(PlaylistBroadcast);
+        super.onStop();
+    }
+
 }

@@ -212,6 +212,8 @@ public class MyService extends Service implements
         player.reset();
         //get song
         switch (listIndex) {
+            case 0:
+                break;
             case 1:
                 setList(getSongListFrag1());
                 break;
@@ -414,7 +416,7 @@ public class MyService extends Service implements
         } else {
             songPosn--;
             if (songPosn < 0) songPosn = songs.size() - 1;
-            playSong(ListNumber);
+            playSong(0);
         }
         updateProgress();
     }
@@ -436,7 +438,7 @@ public class MyService extends Service implements
         } else if (repeat) {
 
         }
-        playSong(ListNumber);
+        playSong(0);
         updateProgress();
     }
 
@@ -619,6 +621,8 @@ public class MyService extends Service implements
     public void setListNumber(int num) {
         ListNumber = num;
     }
+
+    public int getListNumber(){ return ListNumber;}
 
     public Song getCurSong() {
         return songs.get(songPosn);

@@ -34,7 +34,6 @@ public class ArtistFragment extends Fragment {
         btn = (Button) v.findViewById(R.id.btnxemid);
 
         final DatabaseHandler db = new DatabaseHandler(getActivity());
-
         return v;
     }
 
