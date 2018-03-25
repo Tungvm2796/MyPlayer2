@@ -10,6 +10,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,7 +32,14 @@ public class Function {
         });
     }
 
-    Bitmap GetBitmap(String filePath) {
+    public byte[] BitmapToByte(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        if (bitmap != null)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        return stream.toByteArray();
+    }
+
+    public Bitmap GetBitmap(String filePath) {
         Bitmap image;
         MediaMetadataRetriever mData = new MediaMetadataRetriever();
         mData.setDataSource(filePath);
@@ -84,15 +92,47 @@ public class Function {
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtis = musicCursor.getString(artisColumn);
                 String thisData = musicCursor.getString(dataColumn);
-                Bitmap songimg = GetBitmap(thisData);
-                Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
+                //Bitmap songimg = GetBitmap(thisData);
+                //Bitmap lastimg = getResizedBitmap(songimg, 55, 60);
                 long albumId = musicCursor.getLong(albumIdColumn);
-                ArraySong.add(new Song(thisId, thisTitle, thisArtis, lastimg, thisData, albumId));
+                ArraySong.add(new Song(thisId, thisTitle, thisArtis, thisData, albumId));
             }
             while (musicCursor.moveToNext());
         }
         SortByName(ArraySong);
         musicCursor.close();
+    }
+
+    public void getAlbumsLists(Context mContext, ArrayList<Album> albumList) {
+        String where = null;
+
+        final Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
+        final String _id = MediaStore.Audio.Albums._ID;
+        final String album_name = MediaStore.Audio.Albums.ALBUM;
+        final String artist = MediaStore.Audio.Albums.ARTIST;
+        final String albumart = MediaStore.Audio.Albums.ALBUM_ART;
+        final String tracks = MediaStore.Audio.Albums.NUMBER_OF_SONGS;
+
+        final String[] columns = {_id, album_name, artist, albumart, tracks};
+        Cursor cursor = mContext.getContentResolver().query(uri, columns, where, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            do {
+
+                long id = cursor.getLong(cursor.getColumnIndex(_id));
+                String name = cursor.getString(cursor.getColumnIndex(album_name));
+                String artist2 = cursor.getString(cursor.getColumnIndex(artist));
+                String artPath = cursor.getString(cursor.getColumnIndex(albumart));
+                Bitmap art = BitmapFactory.decodeFile(artPath);
+                int nr = Integer.parseInt(cursor.getString(cursor.getColumnIndex(tracks)));
+
+                albumList.add(new Album(id, name, artist2, nr, art));
+
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
     }
 
 }

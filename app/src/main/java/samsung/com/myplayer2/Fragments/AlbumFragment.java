@@ -5,13 +5,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -100,7 +95,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Albu
         function.getSongList(getActivity(), songListTake);
 
         albumList = new ArrayList<>();
-        getAlbumsLists();
+        function.getAlbumsLists(getActivity(), albumList);
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         albumView.setLayoutManager(mManager);
@@ -113,38 +108,6 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Albu
         songOfAlbum.setAdapter(null);
 
         return v;
-    }
-
-    public void getAlbumsLists() {
-        String where = null;
-
-        final Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-        final String _id = MediaStore.Audio.Albums._ID;
-        final String album_name = MediaStore.Audio.Albums.ALBUM;
-        final String artist = MediaStore.Audio.Albums.ARTIST;
-        final String albumart = MediaStore.Audio.Albums.ALBUM_ART;
-        final String tracks = MediaStore.Audio.Albums.NUMBER_OF_SONGS;
-
-        final String[] columns = {_id, album_name, artist, albumart, tracks};
-        Cursor cursor = getActivity().getContentResolver().query(uri, columns, where, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-
-            do {
-
-                long id = cursor.getLong(cursor.getColumnIndex(_id));
-                String name = cursor.getString(cursor.getColumnIndex(album_name));
-                String artist2 = cursor.getString(cursor.getColumnIndex(artist));
-                String artPath = cursor.getString(cursor.getColumnIndex(albumart));
-                Bitmap art = BitmapFactory.decodeFile(artPath);
-                int nr = Integer.parseInt(cursor.getString(cursor.getColumnIndex(tracks)));
-
-                albumList.add(new Album(id, name, artist2, nr, art));
-
-            } while (cursor.moveToNext());
-        }
-
-        cursor.close();
     }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
@@ -182,7 +145,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Albu
     }
 
     @Override
-    public void onItemClick(View view, int position) {
+    public void onAlbumClick(View view, int position) {
         lin1.setVisibility(View.INVISIBLE);
         lin2.setVisibility(View.VISIBLE);
         songListInAlbum.clear();

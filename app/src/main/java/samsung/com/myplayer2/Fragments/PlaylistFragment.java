@@ -76,6 +76,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
 
         IntentFilter toPlaylist = new IntentFilter("ToPlaylist");
         toPlaylist.addAction("Remove");
+        toPlaylist.addAction("Unregister");
         getActivity().registerReceiver(PlaylistBroadcast, toPlaylist);
 
         function = new Function();
@@ -201,7 +202,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     }
 
     @Override
-    public void onItemClick(View view, int position) {
+    public void onPlaylistClick(View view, int position) {
         lin1.setVisibility(View.INVISIBLE);
         lin2.setVisibility(View.VISIBLE);
 
@@ -211,7 +212,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     }
 
     @Override
-    public void onItemLongClick(View view, int position) {
+    public void onPlaylistLongClick(View view, int position) {
         registerForContextMenu(playListView);
         pos = position;
     }
@@ -265,32 +266,36 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     BroadcastReceiver PlaylistBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String plid = playlists.get(pos).getListid();
-            final Long songid = intent.getLongExtra("songid", 0);
+            if (intent.getAction().toString().equals("Remove")) {
+                final String plid = playlists.get(pos).getListid();
+                final Long songid = intent.getLongExtra("songid", 0);
 
-            AlertDialog.Builder aat = new AlertDialog.Builder(getActivity());
-            aat.setTitle("Delete ?")
-                    .setMessage("Are you sure to delete ?")
-                    .setCancelable(true)
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // TODO Auto-generated method stub
-                            dialog.cancel();
-                        }
-                    })
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // TODO Auto-generated method stub
-                                    db.RemoveSongFromPlaylist(plid, Long.toString(songid));
-                                    RenewListSongOfPlaylist(pos);
-                                    Toast.makeText(getActivity(), "Song removed", Toast.LENGTH_SHORT).show();
-                                }
+                AlertDialog.Builder aat = new AlertDialog.Builder(getActivity());
+                aat.setTitle("Delete ?")
+                        .setMessage("Are you sure to delete ?")
+                        .setCancelable(true)
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // TODO Auto-generated method stub
+                                dialog.cancel();
                             }
-                    );
-            AlertDialog art = aat.create();
-            art.show();
+                        })
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // TODO Auto-generated method stub
+                                        db.RemoveSongFromPlaylist(plid, Long.toString(songid));
+                                        RenewListSongOfPlaylist(pos);
+                                        Toast.makeText(getActivity(), "Song removed", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                        );
+                AlertDialog art = aat.create();
+                art.show();
+            } else if (intent.getAction().toString().equals("Unregister")) {
+                getActivity().unregisterReceiver(PlaylistBroadcast);
+            }
         }
     };
 
@@ -315,12 +320,6 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         songInPlaylist.setLayoutManager(mManager);
         songInPlaylist.setAdapter(songAdapterPlaylist);
         myService.setSongListFrag4(songOfPlaylist);
-    }
-
-    @Override
-    public void onStop() {
-        getActivity().unregisterReceiver(PlaylistBroadcast);
-        super.onStop();
     }
 
 }

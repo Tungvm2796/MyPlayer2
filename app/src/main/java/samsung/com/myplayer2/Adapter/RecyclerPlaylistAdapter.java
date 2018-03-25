@@ -47,13 +47,13 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
         @Override
         public void onClick(View view) {
             if (mClickListener != null)
-                mClickListener.onItemClick(view, getAdapterPosition());
+                mClickListener.onPlaylistClick(view, getAdapterPosition());
         }
 
         @Override
         public boolean onLongClick(View view) {
             if (mClickListener != null)
-                mClickListener.onItemLongClick(view, getAdapterPosition());
+                mClickListener.onPlaylistLongClick(view, getAdapterPosition());
             return false;
         }
     }
@@ -85,9 +85,9 @@ public class RecyclerPlaylistAdapter extends RecyclerView.Adapter<RecyclerPlayli
 
     // parent activity will implement this method to respond to click events
     public interface ItemClickListener {
-        void onItemClick(View view, int position);
+        void onPlaylistClick(View view, int position);
 
-        void onItemLongClick(View view, int position);
+        void onPlaylistLongClick(View view, int position);
     }
 
 }

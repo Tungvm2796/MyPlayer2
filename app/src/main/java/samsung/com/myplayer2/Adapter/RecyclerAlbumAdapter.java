@@ -49,7 +49,7 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
         @Override
         public void onClick(View view) {
             if (mClickListener != null)
-                mClickListener.onItemClick(view, getAdapterPosition());
+                mClickListener.onAlbumClick(view, getAdapterPosition());
         }
     }
 
@@ -81,7 +81,7 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
 
     // parent activity will implement this method to respond to click events
     public interface AlbumClickListener {
-        void onItemClick(View view, int position);
+        void onAlbumClick(View view, int position);
     }
 
     public byte[] BitmapToByte(Bitmap bitmap) {

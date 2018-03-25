@@ -14,23 +14,13 @@
 
     android:orientation="vertical">
 
-    <com.arlib.floatingsearchview.FloatingSearchView
-        android:id="@+id/floating_search_view"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:floatingSearch_close_search_on_keyboard_dismiss="true"
-        app:floatingSearch_leftActionMode="noLeftAction"
-        app:floatingSearch_searchHint="Search..."
-        app:floatingSearch_showSearchKey="true"
-        app:floatingSearch_suggestionsListAnimDuration="250" />
-
     <com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/res-auto"
         android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom"
         sothree:umanoDragView="@+id/dragView"
-        sothree:umanoOverlay="true"
+        sothree:umanoOverlay="false"
         sothree:umanoPanelHeight="52dp"
         sothree:umanoParallaxOffset="100dp"
         sothree:umanoShadowHeight="2dp">
@@ -42,8 +32,5 @@
         <include layout="@layout/play_song" />
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-
-    <!-- MAIN CONTENT -->
-
 
 </LinearLayout>

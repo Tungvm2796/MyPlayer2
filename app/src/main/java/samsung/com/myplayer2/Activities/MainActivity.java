@@ -8,9 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -20,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,6 +27,7 @@ import android.widget.Toast;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
+import com.bumptech.glide.Glide;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -36,14 +35,29 @@ import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerAlbumAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerPlaylistAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
+import samsung.com.myplayer2.Class.Album;
+import samsung.com.myplayer2.Class.Function;
+import samsung.com.myplayer2.Class.Playlist;
 import samsung.com.myplayer2.Class.Song;
+import samsung.com.myplayer2.Class.Suggestion;
+import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdapter.AlbumClickListener, RecyclerPlaylistAdapter.ItemClickListener {
 
     private ArrayList<Song> MainSongList;
+    private ArrayList<Song> SongListInAlbumAndPlaylist;
+    private ArrayList<Album> AllAlbum;
+    private ArrayList<Playlist> AllPlaylist;
+
+    private ArrayList<Suggestion> mSuggestion = new ArrayList<>();
+
+    Function function;
+    DatabaseHandler db;
 
     Context context;
 
@@ -75,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
     LinearLayout mainlay1;
     LinearLayout mainlay2;
+    LinearLayout mainlay3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
         initPermission();
 
         context = this;
+        function = new Function();
+        db = new DatabaseHandler(context);
 
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
@@ -92,6 +109,17 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(myMainBroadcast, toActivity);
 
         initView();
+
+        MainSongList = new ArrayList<>();
+        SongListInAlbumAndPlaylist = new ArrayList<>();
+        AllAlbum = new ArrayList<>();
+        AllPlaylist = new ArrayList<>();
+
+        function.getSongList(context, MainSongList);
+        function.getAlbumsLists(context, AllAlbum);
+        AllPlaylist = db.getAllList();
+
+        setSuggestion();
 
         searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
 
@@ -167,6 +195,33 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        searchView.setOnQueryChangeListener(new FloatingSearchView.OnQueryChangeListener() {
+            @Override
+            public void onSearchTextChanged(String oldQuery, String newQuery) {
+                if (!oldQuery.equals("") && newQuery.equals("")) {
+                    searchView.clearSuggestions();
+                } else {
+                    searchView.showProgress();
+                    searchView.swapSuggestions(getSuggestion(newQuery));
+                    searchView.hideProgress();
+                }
+            }
+        });
+
+        searchView.setOnFocusChangeListener(new FloatingSearchView.OnFocusChangeListener() {
+            @Override
+            public void onFocus() {
+                searchView.showProgress();
+                searchView.swapSuggestions(getSuggestion(searchView.getQuery()));
+                searchView.hideProgress();
+            }
+
+            @Override
+            public void onFocusCleared() {
+
+            }
+        });
+
         searchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
             @Override
             public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
@@ -176,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSearchAction(String currentQuery) {
                 mainlay1.setVisibility(View.INVISIBLE);
                 mainlay2.setVisibility(View.VISIBLE);
+                mainlay3.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -245,6 +301,27 @@ public class MainActivity extends AppCompatActivity {
                 myService.setRepeat();
             }
         });
+
+        Button btn2 = (Button) findViewById(R.id.btnmainlay2);
+        Button btn3 = (Button) findViewById(R.id.btnmainlay3);
+
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainlay1.setVisibility(View.INVISIBLE);
+                mainlay2.setVisibility(View.INVISIBLE);
+                mainlay3.setVisibility(View.VISIBLE);
+            }
+        });
+
+        btn3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mainlay1.setVisibility(View.INVISIBLE);
+                mainlay2.setVisibility(View.VISIBLE);
+                mainlay3.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     private void initView() {
@@ -282,6 +359,10 @@ public class MainActivity extends AppCompatActivity {
 
         mainlay1 = (LinearLayout) findViewById(R.id.mainlay1);
         mainlay2 = (LinearLayout) findViewById(R.id.mainlay2);
+        mainlay3 = (LinearLayout) findViewById(R.id.mainlay3);
+
+        mainlay2.setVisibility(View.INVISIBLE);
+        mainlay3.setVisibility(View.INVISIBLE);
     }
 
     public void initPermission() {
@@ -301,6 +382,28 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void setSuggestion() {
+        for (Song song : MainSongList) {
+            mSuggestion.add(new Suggestion(song.getTitle()));
+            mSuggestion.add(new Suggestion(song.getArtist()));
+        }
+        for (Album album : AllAlbum) {
+            mSuggestion.add(new Suggestion(album.getAlbumName()));
+        }
+        for (Playlist playlist : AllPlaylist) {
+            mSuggestion.add(new Suggestion(playlist.getName()));
+        }
+    }
+
+    private ArrayList<Suggestion> getSuggestion(String query) {
+        ArrayList<Suggestion> suggestions = new ArrayList<>();
+        for (Suggestion suggestion : mSuggestion) {
+            if (suggestion.getBody().toLowerCase().contains(query.toLowerCase())) {
+                suggestions.add(suggestion);
+            }
+        }
+        return suggestions;
+    }
 
  /*   private SlidingUpPanelLayout.PanelSlideListener onSlideListener() {
         return new SlidingUpPanelLayout.PanelSlideListener() {
@@ -400,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
         txtTitle.setText(saveTitle);
         txtArtist.setText(saveArtist);
         if (!savePath.equals("0"))
-            imgDisc.setImageBitmap(GetBitmap(savePath));
+            Glide.with(context).load(function.BitmapToByte(function.GetBitmap(savePath))).into(imgDisc);
 
         super.onResume();
     }
@@ -408,6 +511,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         unregisterReceiver(myMainBroadcast);
+
+        Intent intent = new Intent("ToPlaylist");
+        intent.setAction("Unregister");
+        sendBroadcast(intent);
+
         super.onPause();
     }
 
@@ -437,23 +545,10 @@ public class MainActivity extends AppCompatActivity {
                 txtArtist.setText(intent.getStringExtra("artist"));
                 btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 SongPath = intent.getStringExtra("songpath");
-                imgDisc.setImageBitmap(GetBitmap(SongPath));
+                Glide.with(context).load(function.BitmapToByte(function.GetBitmap(SongPath))).into(imgDisc);
             }
         }
     };
-
-    Bitmap GetBitmap(String filePath) {
-        Bitmap image;
-        MediaMetadataRetriever mData = new MediaMetadataRetriever();
-        mData.setDataSource(filePath);
-        try {
-            byte art[] = mData.getEmbeddedPicture();
-            image = BitmapFactory.decodeByteArray(art, 0, art.length);
-        } catch (Exception e) {
-            image = null;
-        }
-        return image;
-    }
 
     @Override
     public void onBackPressed() {
@@ -462,7 +557,13 @@ public class MainActivity extends AppCompatActivity {
                         slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
             slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
+                (mainlay3.getVisibility() == View.VISIBLE)) {
+            mainlay3.setVisibility(View.INVISIBLE);
+            mainlay2.setVisibility(View.VISIBLE);
+            mainlay1.setVisibility(View.INVISIBLE);
+        } else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay2.getVisibility() == View.VISIBLE)) {
+            mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.INVISIBLE);
             mainlay1.setVisibility(View.VISIBLE);
         } else {
@@ -470,4 +571,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onAlbumClick(View view, int position) {
+        Toast.makeText(context, "click roi", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPlaylistClick(View view, int position) {
+
+    }
+
+    @Override
+    public void onPlaylistLongClick(View view, int position) {
+
+    }
 }

@@ -1,7 +1,5 @@
 package samsung.com.myplayer2.Class;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
 
 /**
@@ -11,15 +9,15 @@ public class Song implements Serializable {
     private long id;
     private String title;
     private String artist;
-    private Bitmap img;
+    //private Bitmap img;
     private String data;
     private long albumid;
 
-    public Song(long songID, String songTitle, String songArtist, Bitmap image, String input, long albumID) {
+    public Song(long songID, String songTitle, String songArtist, String input, long albumID) {
         id = songID;
         title = songTitle;
         artist = songArtist;
-        img = image;
+        //img = image;
         data = input;
         albumid = albumID;
     }
@@ -55,10 +53,6 @@ public class Song implements Serializable {
     public String getData() {
         return data;
     }
-
-    public void setImg(Bitmap image){this.img = image;}
-
-    public Bitmap getImg(){return this.img;}
 
     public long getAlbumid() {
         return albumid;
