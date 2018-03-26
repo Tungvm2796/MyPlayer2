@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     android:layout_marginTop="50dp"
     android:background="#ff6565"
-    android:orientation="vertical"
-    android:visibility="invisible">
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/btnmainlay3"

@@ -16,6 +16,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -85,7 +86,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     public static SeekBar seekBar;
     ImageView imgDisc;
     String SongPath;
+
     RecyclerSongAdapter songAdapter;
+    RecyclerPlaylistAdapter playlistAdapter;
+    RecyclerAlbumAdapter albumAdapter;
+
+    RecyclerView resultPlaylist;
+    RecyclerView resultAlbum;
+    RecyclerView resultArtist;
+    RecyclerView resultSong;
 
     LinearLayout mainlay1;
     LinearLayout mainlay2;
@@ -225,6 +234,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         searchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
             @Override
             public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
+                Suggestion sug = (Suggestion) searchSuggestion;
+                mainlay1.setVisibility(View.INVISIBLE);
+                mainlay2.setVisibility(View.VISIBLE);
+                mainlay3.setVisibility(View.INVISIBLE);
+                searchView.clearFocus();
             }
 
             @Override
@@ -405,42 +419,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         return suggestions;
     }
 
- /*   private SlidingUpPanelLayout.PanelSlideListener onSlideListener() {
-        return new SlidingUpPanelLayout.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View view, float v) {
-
-            }
-
-            @Override
-            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-
-            }
-
-            @Override
-            public void onPanelCollapsed(View view) {
-                if (myService.isPng())
-                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-            }
-
-            @Override
-            public void onPanelExpanded(View view) {
-                if (myService.isPng())
-                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-            }
-
-            @Override
-            public void onPanelAnchored(View view) {
-
-            }
-
-            @Override
-            public void onPanelHidden(View view) {
-
-            }
-        };
-    }*/
-
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -467,7 +445,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         this.bindService(playintent, musicConnection, Context.BIND_AUTO_CREATE);
         registerReceiver(myMainBroadcast, new IntentFilter("ToActivity"));
     }
-
 
     @Override
     public void onDestroy() {
@@ -583,6 +560,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     @Override
     public void onPlaylistLongClick(View view, int position) {
+
+    }
+
+    private void SetDataForResultView(String keyword){
 
     }
 }

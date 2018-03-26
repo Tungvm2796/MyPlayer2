@@ -5,15 +5,56 @@
     tools:context="samsung.com.myplayer2.Fragments.ArtistFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/lin1"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/btnxemid"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="click here" />
+        <Button
+            android:layout_width="90dp"
+            android:layout_height="40dp"
+            android:id="@+id/btnlay"
+            android:text="Click me"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
+            android:id="@+id/artistView"
+            android:scrollbars="vertical"
+            android:nestedScrollingEnabled="false">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/lin2"
+        android:orientation="vertical"
+        android:background="@android:color/darker_gray"
+        android:visibility="invisible">
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:id="@+id/btnlay2"
+            android:text="Back"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="290dp"
+            android:id="@+id/cover"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:id="@+id/song_of_artist"
+            android:scrollbars="vertical"
+            android:background="@android:color/holo_green_light">
+        </android.support.v7.widget.RecyclerView>
+
+    </LinearLayout>
 
 </FrameLayout>

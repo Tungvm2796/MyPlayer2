@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="array_drawables">
+        <item>@drawable/pic5</item>
+        <item>@drawable/pic6</item>
+        <item>@drawable/pic7</item>
+        <item>@drawable/pic8</item>
+        <item>@drawable/pic9</item>
+        <item>@drawable/pic10</item>
+        <item>@drawable/pic11</item>
+    </array>
+</resources>
