@@ -16,6 +16,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
@@ -37,28 +39,31 @@ import java.util.ArrayList;
 import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
 import samsung.com.myplayer2.Adapter.FragmentAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerAlbumAdapter;
-import samsung.com.myplayer2.Adapter.RecyclerPlaylistAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerArtistAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Album;
+import samsung.com.myplayer2.Class.Artist;
 import samsung.com.myplayer2.Class.Function;
-import samsung.com.myplayer2.Class.Playlist;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.Class.Suggestion;
-import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
-public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdapter.AlbumClickListener, RecyclerPlaylistAdapter.ItemClickListener {
+public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdapter.AlbumClickListener, RecyclerArtistAdapter.ArtistClickListener {
 
     private ArrayList<Song> MainSongList;
-    private ArrayList<Song> SongListInAlbumAndPlaylist;
+    private ArrayList<Song> SongListOfResult;
+    private ArrayList<Song> SongListOfInnerResult;
+
     private ArrayList<Album> AllAlbum;
-    private ArrayList<Playlist> AllPlaylist;
+    private ArrayList<Album> AlbumOfResult;
+
+    private ArrayList<Artist> AllArtist;
+    private ArrayList<Artist> ArtistOfResult;
 
     private ArrayList<Suggestion> mSuggestion = new ArrayList<>();
 
     Function function;
-    DatabaseHandler db;
 
     Context context;
 
@@ -88,17 +93,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     String SongPath;
 
     RecyclerSongAdapter songAdapter;
-    RecyclerPlaylistAdapter playlistAdapter;
-    RecyclerAlbumAdapter albumAdapter;
 
-    RecyclerView resultPlaylist;
+    RecyclerSongAdapter songAdapterOfResult;
+    RecyclerSongAdapter songAdapterOfInnerResult;
+    RecyclerAlbumAdapter albumAdapterOfResult;
+    RecyclerArtistAdapter artistAdapterOfResult;
+
     RecyclerView resultAlbum;
     RecyclerView resultArtist;
     RecyclerView resultSong;
+    RecyclerView resultInnerSong;
 
     LinearLayout mainlay1;
     LinearLayout mainlay2;
     LinearLayout mainlay3;
+
+    int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,23 +120,35 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
         context = this;
         function = new Function();
-        db = new DatabaseHandler(context);
 
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
+        toActivity.addAction("FragIndex");
         registerReceiver(myMainBroadcast, toActivity);
 
         initView();
 
         MainSongList = new ArrayList<>();
-        SongListInAlbumAndPlaylist = new ArrayList<>();
+        SongListOfResult = new ArrayList<>();
+        SongListOfInnerResult = new ArrayList<>();
+
         AllAlbum = new ArrayList<>();
-        AllPlaylist = new ArrayList<>();
+        AlbumOfResult = new ArrayList<>();
+
+        AllArtist = new ArrayList<>();
+        ArtistOfResult = new ArrayList<>();
 
         function.getSongList(context, MainSongList);
         function.getAlbumsLists(context, AllAlbum);
-        AllPlaylist = db.getAllList();
+        function.getArtist(context, AllArtist);
+
+        resultAlbum = (RecyclerView) findViewById(R.id.album_result);
+        resultArtist = (RecyclerView) findViewById(R.id.artist_result);
+        resultSong = (RecyclerView) findViewById(R.id.song_result);
+        resultInnerSong = (RecyclerView) findViewById(R.id.song_inner_result);
+
+        songAdapter = new RecyclerSongAdapter();
 
         setSuggestion();
 
@@ -138,7 +160,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         //slidingLayout.setDragView(findViewById(R.id.dragview));
 
         imgDisc = (ImageView) findViewById(R.id.imageViewDisc);
-        songAdapter = new RecyclerSongAdapter();
 
         slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -238,6 +259,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 mainlay1.setVisibility(View.INVISIBLE);
                 mainlay2.setVisibility(View.VISIBLE);
                 mainlay3.setVisibility(View.INVISIBLE);
+
+                SetDataForResultView(sug.getBody());
+
                 searchView.clearFocus();
             }
 
@@ -246,6 +270,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 mainlay1.setVisibility(View.INVISIBLE);
                 mainlay2.setVisibility(View.VISIBLE);
                 mainlay3.setVisibility(View.INVISIBLE);
+
+                SetDataForResultView(currentQuery);
             }
         });
 
@@ -404,8 +430,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         for (Album album : AllAlbum) {
             mSuggestion.add(new Suggestion(album.getAlbumName()));
         }
-        for (Playlist playlist : AllPlaylist) {
-            mSuggestion.add(new Suggestion(playlist.getName()));
+        for (Artist artist: AllArtist) {
+            mSuggestion.add(new Suggestion(artist.getName()));
         }
     }
 
@@ -462,6 +488,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
+        toActivity.addAction("FragIndex");
         registerReceiver(myMainBroadcast, toActivity);
 
         try {
@@ -523,6 +550,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 SongPath = intent.getStringExtra("songpath");
                 Glide.with(context).load(function.BitmapToByte(function.GetBitmap(SongPath))).into(imgDisc);
+            } else if(intent.getAction().toString().equals("FragIndex")){
+                index = intent.getIntExtra("key", 0);
             }
         }
     };
@@ -543,9 +572,72 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.INVISIBLE);
             mainlay1.setVisibility(View.VISIBLE);
-        } else {
+        }else if((myService.getListNumber() == 2) &&
+                (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED)
+                && index == 2){
+            Toast.makeText(context, "close Album", Toast.LENGTH_SHORT).show();
+            index = 0;
+        }
+        else {
             super.onBackPressed();
         }
+    }
+
+    private void SetDataForResultView(String keyword) {
+
+        SongListOfResult.clear();
+        SongListOfInnerResult.clear();
+        AlbumOfResult.clear();
+        ArtistOfResult.clear();
+
+        for(int i=0; i<AllAlbum.size(); i++){
+            if(AllAlbum.get(i).getAlbumName().contains(keyword))
+                AlbumOfResult.add(AllAlbum.get(i));
+        }
+
+        for(int i=0; i<AllArtist.size(); i++){
+            if(AllArtist.get(i).getName().contains(keyword))
+                ArtistOfResult.add(AllArtist.get(i));
+        }
+
+        for(int i=0; i<MainSongList.size(); i++){
+            if(MainSongList.get(i).getTitle().contains(keyword))
+                SongListOfResult.add(MainSongList.get(i));
+        }
+
+        albumAdapterOfResult = new RecyclerAlbumAdapter(context, AlbumOfResult);
+        albumAdapterOfResult.setAlbumClickListener(this);
+
+        artistAdapterOfResult = new RecyclerArtistAdapter(context, ArtistOfResult);
+        artistAdapterOfResult.setArtistClickListener(this);
+
+        RecyclerView.LayoutManager mManager1 = new GridLayoutManager(context, 2){
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        };;
+        resultAlbum.setLayoutManager(mManager1);
+        resultAlbum.setAdapter(albumAdapterOfResult);
+
+        RecyclerView.LayoutManager mManager2 = new GridLayoutManager(context, 2){
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        };;
+        resultArtist.setLayoutManager(mManager2);
+        resultArtist.setAdapter(artistAdapterOfResult);
+
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(context){
+            @Override
+            public boolean canScrollVertically() {
+                return false;
+            }
+        };
+        songAdapterOfResult = new RecyclerSongAdapter(context, SongListOfResult);
+        resultSong.setLayoutManager(manager);
+        resultSong.setAdapter(songAdapterOfResult);
     }
 
     @Override
@@ -554,16 +646,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     }
 
     @Override
-    public void onPlaylistClick(View view, int position) {
-
-    }
-
-    @Override
-    public void onPlaylistLongClick(View view, int position) {
-
-    }
-
-    private void SetDataForResultView(String keyword){
+    public void onArtistClick(View view, int position) {
 
     }
 }

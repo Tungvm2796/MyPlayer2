@@ -160,5 +160,10 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Albu
         RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), songListInAlbum);
         songOfAlbum.setAdapter(songAdt);
         myService.setSongListFrag2(songListInAlbum);
+
+        Intent intent = new Intent("ToActivity");
+        intent.setAction("FragIndex");
+        intent.putExtra("key", 2);
+        getActivity().sendBroadcast(intent);
     }
 }

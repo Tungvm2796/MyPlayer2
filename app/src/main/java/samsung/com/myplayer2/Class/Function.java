@@ -24,10 +24,26 @@ public class Function {
     public Function() {
     }
 
-    public void SortByName(ArrayList<Song> ArraySong) {
+    public void SortBySongName(ArrayList<Song> ArraySong) {
         Collections.sort(ArraySong, new Comparator<Song>() {
             public int compare(Song a, Song b) {
                 return a.getTitle().compareTo(b.getTitle());
+            }
+        });
+    }
+
+    public void SortByAlbumName(ArrayList<Album> ArrayAlbum) {
+        Collections.sort(ArrayAlbum, new Comparator<Album>() {
+            public int compare(Album a, Album b) {
+                return a.getAlbumName().compareTo(b.getAlbumName());
+            }
+        });
+    }
+
+    public void SortByArtistName(ArrayList<Artist> ArrayArtist) {
+        Collections.sort(ArrayArtist, new Comparator<Artist>() {
+            public int compare(Artist a, Artist b) {
+                return a.getName().compareTo(b.getName());
             }
         });
     }
@@ -99,7 +115,7 @@ public class Function {
             }
             while (musicCursor.moveToNext());
         }
-        SortByName(ArraySong);
+        SortBySongName(ArraySong);
         musicCursor.close();
     }
 
@@ -131,7 +147,29 @@ public class Function {
 
             } while (cursor.moveToNext());
         }
+        SortByAlbumName(albumList);
+        cursor.close();
+    }
 
+    public void getArtist(Context mContext, ArrayList<Artist> artists) {
+        String where = null;
+
+        final Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
+        final String artist = MediaStore.Audio.Albums.ARTIST;
+
+        final String[] columns = {artist};
+        Cursor cursor = mContext.getContentResolver().query(uri, columns, where, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+
+            do {
+
+                String artist2 = cursor.getString(cursor.getColumnIndex(artist));
+                artists.add(new Artist(artist2));
+
+            } while (cursor.moveToNext());
+        }
+        SortByArtistName(artists);
         cursor.close();
     }
 

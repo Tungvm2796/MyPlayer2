@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.RecyclerArtistAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
-import samsung.com.myplayer2.Class.Album;
 import samsung.com.myplayer2.Class.Artist;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
@@ -48,7 +47,6 @@ public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.Ar
     private ArrayList<Artist> artists;
     private ArrayList<Song> songListTake;
     private ArrayList<Song> songListOfArtist;
-    private ArrayList<Album> albumList;
     RecyclerView artistView;
     RecyclerView songOfArtist;
     Context context;
@@ -95,13 +93,8 @@ public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.Ar
         function.getSongList(getActivity(), songListTake);
 
         artists = new ArrayList<>();
-        albumList = new ArrayList<>();
 
-        function.getAlbumsLists(getActivity(), albumList);
-
-        for(Album album : albumList){
-            artists.add(new Artist(album.getArtistName()));
-        }
+        function.getArtist(getActivity(), artists);
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         artistView.setLayoutManager(mManager);

@@ -13,4 +13,17 @@
         android:layout_height="40dp"
         android:text="click to Result" />
 
+    <ImageView
+        android:id="@+id/ResultCover"
+        android:layout_width="match_parent"
+        android:layout_height="290dp"
+        android:contentDescription="Image"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/song_inner_result"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@android:color/holo_green_light"
+        android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+
 </LinearLayout>
