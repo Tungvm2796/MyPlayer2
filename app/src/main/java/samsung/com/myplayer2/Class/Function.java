@@ -154,8 +154,8 @@ public class Function {
     public void getArtist(Context mContext, ArrayList<Artist> artists) {
         String where = null;
 
-        final Uri uri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-        final String artist = MediaStore.Audio.Albums.ARTIST;
+        final Uri uri = MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI;
+        final String artist = MediaStore.Audio.Artists.ARTIST;
 
         final String[] columns = {artist};
         Cursor cursor = mContext.getContentResolver().query(uri, columns, where, null, null);

@@ -44,6 +44,7 @@ import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Album;
 import samsung.com.myplayer2.Class.Artist;
 import samsung.com.myplayer2.Class.Function;
+import samsung.com.myplayer2.Class.KMPSearch;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.Class.Suggestion;
 import samsung.com.myplayer2.R;
@@ -260,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 mainlay2.setVisibility(View.VISIBLE);
                 mainlay3.setVisibility(View.INVISIBLE);
 
-                SetDataForResultView(sug.getBody());
+                SetDataForResultView(sug.getBody().toString());
 
                 searchView.clearFocus();
             }
@@ -430,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         for (Album album : AllAlbum) {
             mSuggestion.add(new Suggestion(album.getAlbumName()));
         }
-        for (Artist artist: AllArtist) {
+        for (Artist artist : AllArtist) {
             mSuggestion.add(new Suggestion(artist.getName()));
         }
     }
@@ -550,7 +551,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
                 SongPath = intent.getStringExtra("songpath");
                 Glide.with(context).load(function.BitmapToByte(function.GetBitmap(SongPath))).into(imgDisc);
-            } else if(intent.getAction().toString().equals("FragIndex")){
+            } else if (intent.getAction().toString().equals("FragIndex")) {
                 index = intent.getIntExtra("key", 0);
             }
         }
@@ -572,13 +573,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.INVISIBLE);
             mainlay1.setVisibility(View.VISIBLE);
-        }else if((myService.getListNumber() == 2) &&
+        } else if ((myService.getListNumber() == 2) &&
                 (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED)
-                && index == 2){
+                && index == 2) {
             Toast.makeText(context, "close Album", Toast.LENGTH_SHORT).show();
             index = 0;
-        }
-        else {
+        } else {
             super.onBackPressed();
         }
     }
@@ -590,19 +590,40 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         AlbumOfResult.clear();
         ArtistOfResult.clear();
 
-        for(int i=0; i<AllAlbum.size(); i++){
-            if(AllAlbum.get(i).getAlbumName().contains(keyword))
+        for (int i = 0; i < AllAlbum.size(); i++) {
+            KMPSearch kmpSearch1 = new KMPSearch();
+            kmpSearch1.Search(keyword.toLowerCase(), AllAlbum.get(i).getAlbumName().toLowerCase());
+            if (kmpSearch1.GetSize() != 0 && kmpSearch1.GetFirstIndex() == 0) {
                 AlbumOfResult.add(AllAlbum.get(i));
+            } else {
+                kmpSearch1.Search(" " + keyword.toLowerCase(), AllAlbum.get(i).getAlbumName().toLowerCase());
+                if (kmpSearch1.GetSize() != 0 && kmpSearch1.GetFirstIndex() != 0)
+                    AlbumOfResult.add(AllAlbum.get(i));
+            }
         }
 
-        for(int i=0; i<AllArtist.size(); i++){
-            if(AllArtist.get(i).getName().contains(keyword))
+        for (int i = 0; i < AllArtist.size(); i++) {
+            KMPSearch kmpSearch2 = new KMPSearch();
+            kmpSearch2.Search(keyword.toLowerCase(), AllArtist.get(i).getName().toLowerCase());
+            if (kmpSearch2.GetSize() != 0 && kmpSearch2.GetFirstIndex() == 0) {
                 ArtistOfResult.add(AllArtist.get(i));
+            } else {
+                kmpSearch2.Search(" " + keyword.toLowerCase(), AllArtist.get(i).getName().toLowerCase());
+                if (kmpSearch2.GetSize() != 0 && kmpSearch2.GetFirstIndex() != 0)
+                    ArtistOfResult.add(AllArtist.get(i));
+            }
         }
 
-        for(int i=0; i<MainSongList.size(); i++){
-            if(MainSongList.get(i).getTitle().contains(keyword))
+        for (int i = 0; i < MainSongList.size(); i++) {
+            KMPSearch kmpSearch3 = new KMPSearch();
+            kmpSearch3.Search(keyword.toLowerCase(), MainSongList.get(i).getTitle().toLowerCase());
+            if (kmpSearch3.GetSize() != 0 && kmpSearch3.GetFirstIndex() == 0) {
                 SongListOfResult.add(MainSongList.get(i));
+            } else {
+                kmpSearch3.Search(" " + keyword.toLowerCase(), MainSongList.get(i).getTitle().toLowerCase());
+                if (kmpSearch3.GetSize() != 0 && kmpSearch3.GetFirstIndex() != 0)
+                    SongListOfResult.add(MainSongList.get(i));
+            }
         }
 
         albumAdapterOfResult = new RecyclerAlbumAdapter(context, AlbumOfResult);
@@ -611,25 +632,27 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         artistAdapterOfResult = new RecyclerArtistAdapter(context, ArtistOfResult);
         artistAdapterOfResult.setArtistClickListener(this);
 
-        RecyclerView.LayoutManager mManager1 = new GridLayoutManager(context, 2){
+        RecyclerView.LayoutManager mManager1 = new GridLayoutManager(context, 2) {
             @Override
             public boolean canScrollVertically() {
                 return false;
             }
-        };;
+        };
+        ;
         resultAlbum.setLayoutManager(mManager1);
         resultAlbum.setAdapter(albumAdapterOfResult);
 
-        RecyclerView.LayoutManager mManager2 = new GridLayoutManager(context, 2){
+        RecyclerView.LayoutManager mManager2 = new GridLayoutManager(context, 2) {
             @Override
             public boolean canScrollVertically() {
                 return false;
             }
-        };;
+        };
+        ;
         resultArtist.setLayoutManager(mManager2);
         resultArtist.setAdapter(artistAdapterOfResult);
 
-        RecyclerView.LayoutManager manager = new LinearLayoutManager(context){
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(context) {
             @Override
             public boolean canScrollVertically() {
                 return false;
