@@ -119,8 +119,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
         initPermission();
 
+        Button mybtn = (Button) findViewById(R.id.xemlist);
+
         context = this;
         function = new Function();
+
+        mybtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, Integer.toString(myService.getListNumber()), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
@@ -199,22 +208,27 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                     switch (position) {
                         case 0:
                             myService.setListNumber(1);
+                            myService.setListNumberFrag(1);
                             songAdapter.setOnPlaylist(0);
                             break;
                         case 1:
                             myService.setListNumber(2);
+                            myService.setListNumberFrag(2);
                             songAdapter.setOnPlaylist(0);
                             break;
                         case 2:
                             myService.setListNumber(3);
+                            myService.setListNumberFrag(3);
                             songAdapter.setOnPlaylist(0);
                             break;
                         case 3:
                             myService.setListNumber(4);
+                            myService.setListNumberFrag(4);
                             songAdapter.setOnPlaylist(1);
                             break;
                         case 4:
                             myService.setListNumber(5);
+                            myService.setListNumberFrag(5);
                             break;
                     }
                 }
@@ -256,10 +270,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         searchView.setOnSearchListener(new FloatingSearchView.OnSearchListener() {
             @Override
             public void onSuggestionClicked(SearchSuggestion searchSuggestion) {
+
                 Suggestion sug = (Suggestion) searchSuggestion;
-                mainlay1.setVisibility(View.INVISIBLE);
-                mainlay2.setVisibility(View.VISIBLE);
-                mainlay3.setVisibility(View.INVISIBLE);
 
                 SetDataForResultView(sug.getBody().toString());
 
@@ -268,9 +280,6 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
             @Override
             public void onSearchAction(String currentQuery) {
-                mainlay1.setVisibility(View.INVISIBLE);
-                mainlay2.setVisibility(View.VISIBLE);
-                mainlay3.setVisibility(View.INVISIBLE);
 
                 SetDataForResultView(currentQuery);
             }
@@ -352,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 mainlay1.setVisibility(View.INVISIBLE);
                 mainlay2.setVisibility(View.INVISIBLE);
                 mainlay3.setVisibility(View.VISIBLE);
+                myService.setListNumber(7);  ///// Sua lai cho nay, dung ra nos la button quay lai
             }
         });
 
@@ -361,6 +371,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 mainlay1.setVisibility(View.INVISIBLE);
                 mainlay2.setVisibility(View.VISIBLE);
                 mainlay3.setVisibility(View.INVISIBLE);
+                myService.setListNumber(6);
             }
         });
     }
@@ -559,20 +570,27 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     @Override
     public void onBackPressed() {
+        //If SlidingUp Panel is show, collapse it
         if (slidingLayout != null &&
                 (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED ||
                         slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.ANCHORED)) {
             slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        } else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
+        }
+        //If SlingUp Panel is collaped and the inner result is show, close the inner result layout and back to the result
+        else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay3.getVisibility() == View.VISIBLE)) {
             mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.VISIBLE);
             mainlay1.setVisibility(View.INVISIBLE);
-        } else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
+            myService.setListNumber(6);
+        }
+        //If SlidingUp Panel is collapsed and the result is show, close the result layout and back to the main layout, set Listnumber to Fragments
+        else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay2.getVisibility() == View.VISIBLE)) {
             mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.INVISIBLE);
             mainlay1.setVisibility(View.VISIBLE);
+            myService.setListNumber(myService.getListNumberFrag());
         } else if ((myService.getListNumber() == 2) &&
                 (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED)
                 && index == 2) {
@@ -585,11 +603,17 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     private void SetDataForResultView(String keyword) {
 
+        mainlay1.setVisibility(View.INVISIBLE);
+        mainlay2.setVisibility(View.VISIBLE);
+        mainlay3.setVisibility(View.INVISIBLE);
+
+        myService.setListNumber(6);
         SongListOfResult.clear();
         SongListOfInnerResult.clear();
         AlbumOfResult.clear();
         ArtistOfResult.clear();
 
+        //Get Result Albums
         for (int i = 0; i < AllAlbum.size(); i++) {
             KMPSearch kmpSearch1 = new KMPSearch();
             kmpSearch1.Search(keyword.toLowerCase(), AllAlbum.get(i).getAlbumName().toLowerCase());
@@ -602,6 +626,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             }
         }
 
+        //Get Result Artists
         for (int i = 0; i < AllArtist.size(); i++) {
             KMPSearch kmpSearch2 = new KMPSearch();
             kmpSearch2.Search(keyword.toLowerCase(), AllArtist.get(i).getName().toLowerCase());
@@ -614,6 +639,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             }
         }
 
+        //Get Result Songs
         for (int i = 0; i < MainSongList.size(); i++) {
             KMPSearch kmpSearch3 = new KMPSearch();
             kmpSearch3.Search(keyword.toLowerCase(), MainSongList.get(i).getTitle().toLowerCase());
@@ -626,12 +652,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             }
         }
 
+        //Set Adapter for Result Albums
         albumAdapterOfResult = new RecyclerAlbumAdapter(context, AlbumOfResult);
         albumAdapterOfResult.setAlbumClickListener(this);
 
+        //Set Adapter for Result Artists
         artistAdapterOfResult = new RecyclerArtistAdapter(context, ArtistOfResult);
         artistAdapterOfResult.setArtistClickListener(this);
 
+        //Set Layout for RecyclerView list result Albums
         RecyclerView.LayoutManager mManager1 = new GridLayoutManager(context, 2) {
             @Override
             public boolean canScrollVertically() {
@@ -642,6 +671,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         resultAlbum.setLayoutManager(mManager1);
         resultAlbum.setAdapter(albumAdapterOfResult);
 
+        //Now Set layout for result, all is disable to scroll vertical
+
+        //Set Layout for RecyclerView list result Artists
         RecyclerView.LayoutManager mManager2 = new GridLayoutManager(context, 2) {
             @Override
             public boolean canScrollVertically() {
@@ -652,24 +684,66 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         resultArtist.setLayoutManager(mManager2);
         resultArtist.setAdapter(artistAdapterOfResult);
 
-        RecyclerView.LayoutManager manager = new LinearLayoutManager(context) {
+        //Set Layout for RecyclerView list result Songs
+        RecyclerView.LayoutManager manager1 = new LinearLayoutManager(context) {
             @Override
             public boolean canScrollVertically() {
                 return false;
             }
         };
         songAdapterOfResult = new RecyclerSongAdapter(context, SongListOfResult);
-        resultSong.setLayoutManager(manager);
+        resultSong.setLayoutManager(manager1);
         resultSong.setAdapter(songAdapterOfResult);
+
+        //Set list song to List show in Result
+        myService.setSongListResult(SongListOfResult);
     }
 
     @Override
     public void onAlbumClick(View view, int position) {
-        Toast.makeText(context, "click roi", Toast.LENGTH_SHORT).show();
+
+        mainlay1.setVisibility(View.INVISIBLE);
+        mainlay2.setVisibility(View.INVISIBLE);
+        mainlay3.setVisibility(View.VISIBLE);
+
+        myService.setListNumber(7);
+        SongListOfInnerResult.clear();
+        resultInnerSong.setAdapter(null);
+
+        for (int i = 0; i < MainSongList.size(); i++) {
+            if (MainSongList.get(i).getAlbumid() == AlbumOfResult.get(position).getId())
+                SongListOfInnerResult.add(MainSongList.get(i));
+        }
+
+        songAdapterOfInnerResult = new RecyclerSongAdapter(context, SongListOfInnerResult);
+        RecyclerView.LayoutManager manager2 = new LinearLayoutManager(context);
+        resultInnerSong.setLayoutManager(manager2);
+        resultInnerSong.setAdapter(songAdapterOfInnerResult);
+
+        myService.setSongListInnerResult(SongListOfInnerResult);
     }
 
     @Override
     public void onArtistClick(View view, int position) {
 
+        mainlay1.setVisibility(View.INVISIBLE);
+        mainlay2.setVisibility(View.INVISIBLE);
+        mainlay3.setVisibility(View.VISIBLE);
+
+        myService.setListNumber(7);
+        SongListOfInnerResult.clear();
+        resultInnerSong.setAdapter(null);
+
+        for (int i = 0; i < MainSongList.size(); i++) {
+            if (MainSongList.get(i).getArtist().equals(ArtistOfResult.get(position).getName()))
+                SongListOfInnerResult.add(MainSongList.get(i));
+        }
+
+        songAdapterOfInnerResult = new RecyclerSongAdapter(context, SongListOfInnerResult);
+        RecyclerView.LayoutManager manager3 = new LinearLayoutManager(context);
+        resultInnerSong.setLayoutManager(manager3);
+        resultInnerSong.setAdapter(songAdapterOfInnerResult);
+
+        myService.setSongListInnerResult(SongListOfInnerResult);
     }
 }

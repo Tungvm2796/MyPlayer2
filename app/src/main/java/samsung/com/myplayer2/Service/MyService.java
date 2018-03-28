@@ -63,10 +63,18 @@ public class MyService extends Service implements
     private ArrayList<Song> SongListFrag3;
     //List from Fragment 4
     private ArrayList<Song> SongListFrag4;
+    //List from Fragment 5
+    private ArrayList<Song> SongListFrag5;
+    //List from Search result Songs
+    private ArrayList<Song> SongListResult;
+    //List from Search result Songs of Album and Artist
+    private ArrayList<Song> SongListInnerResult;
     //song list to play
     private ArrayList<Song> songs;
     //Number of song list
     private int ListNumber = 1;
+    //Number of song list in Fragments
+    private int ListNumberFrag = 1;
     //current position
     private int songPosn;
     //binder
@@ -225,6 +233,15 @@ public class MyService extends Service implements
                 break;
             case 4:
                 setList(getSongListFrag4());
+                break;
+            case 5:
+                setList(getSongListFrag5());
+                break;
+            case 6:
+                setList(getSongListResult());
+                break;
+            case 7:
+                setList(getSongListInnerResult());
                 break;
         }
         Song playSong = songs.get(songPosn);
@@ -602,6 +619,18 @@ public class MyService extends Service implements
         SongListFrag4 = songListFrag4;
     }
 
+    public void setSongListFrag5(ArrayList<Song> songListFrag5) {
+        SongListFrag5 = songListFrag5;
+    }
+
+    public void setSongListResult(ArrayList<Song> songListResult) {
+        SongListResult = songListResult;
+    }
+
+    public void setSongListInnerResult(ArrayList<Song> songListInnerResult) {
+        SongListInnerResult = songListInnerResult;
+    }
+
     public ArrayList<Song> getSongListFrag1() {
         return SongListFrag1;
     }
@@ -618,11 +647,31 @@ public class MyService extends Service implements
         return SongListFrag4;
     }
 
+    public ArrayList<Song> getSongListFrag5() {
+        return SongListFrag5;
+    }
+
+    public ArrayList<Song> getSongListResult() {
+        return SongListResult;
+    }
+
+    public ArrayList<Song> getSongListInnerResult() {
+        return SongListInnerResult;
+    }
+
     public void setListNumber(int num) {
         ListNumber = num;
     }
 
     public int getListNumber(){ return ListNumber;}
+
+    public int getListNumberFrag() {
+        return ListNumberFrag;
+    }
+
+    public void setListNumberFrag(int listNumberFrag) {
+        ListNumberFrag = listNumberFrag;
+    }
 
     public Song getCurSong() {
         return songs.get(songPosn);
