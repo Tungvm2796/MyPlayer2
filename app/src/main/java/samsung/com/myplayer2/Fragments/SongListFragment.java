@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
+import samsung.com.myplayer2.Class.ToolbarHidingOnScrollListener;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
@@ -115,10 +116,16 @@ public class SongListFragment extends Fragment {
 
         function.getSongList(getActivity(), SongList);
 
+        View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
+        View toolbar = getActivity().findViewById(R.id.toolbar);
+        View lasttab = getActivity().findViewById(R.id.viewpagertab);
+        View coloredBackgroundView = getActivity().findViewById(R.id.colored_background_view);
+
         final RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), SongList);
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
         songView.setLayoutManager(mManager);
         songView.setAdapter(songAdt);
+        songView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         searchbox.addTextChangedListener(new TextWatcher() {
             @Override
