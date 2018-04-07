@@ -28,11 +28,13 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Adapter.RecyclerPlaylistAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Playlist;
 import samsung.com.myplayer2.Class.Song;
+import samsung.com.myplayer2.Class.ToolbarHidingOnScrollListener;
 import samsung.com.myplayer2.Handler.DatabaseHandler;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
@@ -95,14 +97,20 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         songIdArray = new ArrayList<>();
         songOfPlaylist = new ArrayList<>();
         AllSong = new ArrayList<>();
-        function.getSongList(getActivity(), AllSong);
+        //function.getSongList(getActivity(), AllSong);
+        AllSong = ((MainActivity)getActivity()).getAllSong();
 
+        View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
+        View toolbar = getActivity().findViewById(R.id.toolbar);
+        View lasttab = getActivity().findViewById(R.id.viewpagertab);
+        View coloredBackgroundView = getActivity().findViewById(R.id.colored_background_view);
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         playListView.setLayoutManager(mManager);
         PlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
         PlaylistAdapter.setClickListener(this);
         playListView.setAdapter(PlaylistAdapter);
+        playListView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogTheme);
         alertDialog.setTitle("Add new Playlist");

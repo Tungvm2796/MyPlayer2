@@ -19,11 +19,13 @@ import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
+import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Adapter.RecyclerArtistAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Artist;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
+import samsung.com.myplayer2.Class.ToolbarHidingOnScrollListener;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
@@ -90,17 +92,23 @@ public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.Ar
         songListOfArtist = new ArrayList<>();
 
         songListTake = new ArrayList<>();
-        function.getSongList(getActivity(), songListTake);
+        //function.getSongList(getActivity(), songListTake);
+        songListTake = ((MainActivity)getActivity()).getAllSong();
 
         artists = new ArrayList<>();
-
         function.getArtist(getActivity(), artists);
+
+        View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
+        View toolbar = getActivity().findViewById(R.id.toolbar);
+        View lasttab = getActivity().findViewById(R.id.viewpagertab);
+        View coloredBackgroundView = getActivity().findViewById(R.id.colored_background_view);
 
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
         artistView.setLayoutManager(mManager);
         RecyclerArtistAdapter artistAdt = new RecyclerArtistAdapter(getContext(), artists);
         artistAdt.setArtistClickListener(this);
         artistView.setAdapter(artistAdt);
+        artistView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         songOfArtist.setLayoutManager(manager);

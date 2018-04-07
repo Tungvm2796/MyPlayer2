@@ -111,6 +111,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     int index;
 
+    View tabcontainer;
+    View coloredBackgroundView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,6 +141,10 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         registerReceiver(myMainBroadcast, toActivity);
 
         initView();
+
+        tabcontainer = findViewById(R.id.tabcontainer);
+        coloredBackgroundView = findViewById(R.id.colored_background_view);
+
 
         MainSongList = new ArrayList<>();
         SongListOfResult = new ArrayList<>();
@@ -196,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             }
         });
 
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -232,6 +239,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                             break;
                     }
                 }
+                tabcontainer.clearAnimation();
+                tabcontainer
+                        .animate()
+                        .translationY(0)
+                        .start();
+                coloredBackgroundView.setTranslationY(0);
             }
 
             @Override
@@ -415,6 +428,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
         mainlay2.setVisibility(View.INVISIBLE);
         mainlay3.setVisibility(View.INVISIBLE);
+
     }
 
     public void initPermission() {
@@ -745,5 +759,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         resultInnerSong.setAdapter(songAdapterOfInnerResult);
 
         myService.setSongListInnerResult(SongListOfInnerResult);
+    }
+
+    public ArrayList<Song> getAllSong() {
+        return MainSongList;
     }
 }

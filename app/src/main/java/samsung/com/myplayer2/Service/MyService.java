@@ -348,7 +348,7 @@ public class MyService extends Service implements
                 .setContentText(songTitle)
                 .setAutoCancel(true)
                 .setDeleteIntent(MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_STOP))
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
         ;
         RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.notice_layout);
         switch (casenum) {
@@ -663,7 +663,9 @@ public class MyService extends Service implements
         ListNumber = num;
     }
 
-    public int getListNumber(){ return ListNumber;}
+    public int getListNumber() {
+        return ListNumber;
+    }
 
     public int getListNumberFrag() {
         return ListNumberFrag;

@@ -30,6 +30,7 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
@@ -114,7 +115,8 @@ public class SongListFragment extends Fragment {
 
         SongFilterList = new ArrayList<>();
 
-        function.getSongList(getActivity(), SongList);
+        //function.getSongList(getActivity(), SongList);
+        SongList = ((MainActivity)getActivity()).getAllSong();
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
         View toolbar = getActivity().findViewById(R.id.toolbar);
