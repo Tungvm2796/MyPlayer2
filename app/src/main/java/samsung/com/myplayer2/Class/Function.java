@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import samsung.com.myplayer2.R;
+
 /**
  * Created by 450G4 on 3/20/2018.
  */
@@ -48,6 +50,21 @@ public class Function {
         });
     }
 
+    public Bitmap GetBitmap(String filePath) {
+        Bitmap image;
+        MediaMetadataRetriever mData = new MediaMetadataRetriever();
+        mData.setDataSource(filePath);
+
+        try {
+            byte art[] = mData.getEmbeddedPicture();
+            image = BitmapFactory.decodeByteArray(art, 0, art.length);
+        } catch (Exception e) {
+            image = null;
+        }
+
+        return image;
+    }
+
     public byte[] BitmapToByte(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         if (bitmap != null)
@@ -55,17 +72,12 @@ public class Function {
         return stream.toByteArray();
     }
 
-    public Bitmap GetBitmap(String filePath) {
-        Bitmap image;
+    public byte[] GetBitMapByte(String filePath) {
         MediaMetadataRetriever mData = new MediaMetadataRetriever();
         mData.setDataSource(filePath);
-        try {
-            byte art[] = mData.getEmbeddedPicture();
-            image = BitmapFactory.decodeByteArray(art, 0, art.length);
-        } catch (Exception e) {
-            image = null;
-        }
-        return image;
+
+        byte art[] = mData.getEmbeddedPicture();
+        return art;
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
@@ -173,4 +185,7 @@ public class Function {
         cursor.close();
     }
 
+    public String getURLForResource(int resourceId) {
+        return Uri.parse("android.resource://" + R.class.getPackage().getName() + "/" + resourceId).toString();
+    }
 }

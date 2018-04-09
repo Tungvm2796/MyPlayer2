@@ -110,7 +110,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         PlaylistAdapter = new RecyclerPlaylistAdapter(getActivity(), playlists);
         PlaylistAdapter.setClickListener(this);
         playListView.setAdapter(PlaylistAdapter);
-        playListView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
+        playListView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity(), R.style.AlertDialogTheme);
         alertDialog.setTitle("Add new Playlist");

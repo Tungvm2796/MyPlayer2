@@ -116,7 +116,7 @@ public class SongListFragment extends Fragment {
         SongFilterList = new ArrayList<>();
 
         //function.getSongList(getActivity(), SongList);
-        SongList = ((MainActivity)getActivity()).getAllSong();
+        SongList = ((MainActivity) getActivity()).getAllSong();
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
         View toolbar = getActivity().findViewById(R.id.toolbar);
@@ -127,7 +127,7 @@ public class SongListFragment extends Fragment {
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
         songView.setLayoutManager(mManager);
         songView.setAdapter(songAdt);
-        songView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
+        songView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         searchbox.addTextChangedListener(new TextWatcher() {
             @Override
@@ -159,7 +159,7 @@ public class SongListFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                  /* Write your logic here that will be executed when user taps next button */
+                    /* Write your logic here that will be executed when user taps next button */
                     if (searchbox.getText() != null) {
                         songView.setAdapter(null);
                         SongFilterList.clear();

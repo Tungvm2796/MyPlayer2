@@ -1,7 +1,6 @@
 package samsung.com.myplayer2.Service;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -18,8 +17,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.service.notification.StatusBarNotification;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
@@ -401,7 +398,7 @@ public class MyService extends Service implements
         player.start();
     }
 
-    public int CountNoti() {
+    /*public int CountNoti() {
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         StatusBarNotification[] notifications = notificationManager.getActiveNotifications();
         int count = 0;
@@ -411,7 +408,7 @@ public class MyService extends Service implements
             }
         }
         return count;
-    }
+    }*/
 
     public String getSongTitle() {
         return songTitle;

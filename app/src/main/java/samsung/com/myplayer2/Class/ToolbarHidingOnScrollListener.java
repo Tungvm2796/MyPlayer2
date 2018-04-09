@@ -1,10 +1,14 @@
 package samsung.com.myplayer2.Class;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.bumptech.glide.Glide;
+
 public class ToolbarHidingOnScrollListener extends RecyclerView.OnScrollListener {
 
+    Context mContext;
     private final View tabContainer;
     private final View tabbar;
     private final View parallaxScrollingView;
@@ -12,7 +16,8 @@ public class ToolbarHidingOnScrollListener extends RecyclerView.OnScrollListener
 
     private float parallaxScrollingFactor = 0.7f;
 
-    public ToolbarHidingOnScrollListener(View tabContainer, View tabbar, View lastTabView, View parallaxScrollingView) {
+    public ToolbarHidingOnScrollListener(Context context, View tabContainer, View tabbar, View lastTabView, View parallaxScrollingView) {
+        this.mContext = context;
         this.tabContainer = tabContainer;
         this.tabbar = tabbar;
         this.parallaxScrollingView = parallaxScrollingView;
@@ -21,16 +26,23 @@ public class ToolbarHidingOnScrollListener extends RecyclerView.OnScrollListener
 
     @Override
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-        super.onScrollStateChanged(recyclerView, newState);
-
-        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-            if (Math.abs(tabContainer.getTranslationY()) > tabbar.getHeight()) {
-                hideToolbar();
-            } else {
-                showToolbar();
-            }
-        } else {
-            tabContainer.clearAnimation();
+        switch (newState) {
+            case RecyclerView.SCROLL_STATE_IDLE:
+                if (Math.abs(tabContainer.getTranslationY()) > tabbar.getHeight()) {
+                    hideToolbar();
+                } else {
+                    showToolbar();
+                }
+                Glide.with(mContext).resumeRequests();
+                break;
+            case RecyclerView.SCROLL_STATE_DRAGGING:
+                Glide.with(mContext).pauseRequests();
+                tabContainer.clearAnimation();
+                break;
+            case RecyclerView.SCROLL_STATE_SETTLING:
+                Glide.with(mContext).pauseRequests();
+                tabContainer.clearAnimation();
+                break;
         }
     }
 

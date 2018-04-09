@@ -110,7 +110,7 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Albu
         RecyclerAlbumAdapter albumAdt = new RecyclerAlbumAdapter(getContext(), albumList);
         albumAdt.setAlbumClickListener(this);
         albumView.setAdapter(albumAdt);
-        albumView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
+        albumView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         songOfAlbum.setLayoutManager(manager);

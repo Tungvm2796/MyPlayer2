@@ -108,7 +108,7 @@ public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.Ar
         RecyclerArtistAdapter artistAdt = new RecyclerArtistAdapter(getContext(), artists);
         artistAdt.setArtistClickListener(this);
         artistView.setAdapter(artistAdt);
-        artistView.setOnScrollListener(new ToolbarHidingOnScrollListener(tabcontainer, toolbar, lasttab, coloredBackgroundView));
+        artistView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         songOfArtist.setLayoutManager(manager);
