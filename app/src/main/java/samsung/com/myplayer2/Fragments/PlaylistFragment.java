@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -30,7 +31,8 @@ import java.util.ArrayList;
 
 import samsung.com.myplayer2.Activities.MainActivity;
 import samsung.com.myplayer2.Adapter.RecyclerPlaylistAdapter;
-import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
+import samsung.com.myplayer2.Adapter.SongInPlaylistAdapter;
+import samsung.com.myplayer2.Class.EditItemTouchHelperCallback;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Playlist;
 import samsung.com.myplayer2.Class.Song;
@@ -60,7 +62,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     ArrayList<Playlist> playlists;
     EditText edt;
     RecyclerPlaylistAdapter PlaylistAdapter;
-    RecyclerSongAdapter songAdapterPlaylist;
+    SongInPlaylistAdapter songAdapterPlaylist;
     LinearLayout lin1;
     LinearLayout lin2;
     ArrayList<Song> songOfPlaylist;
@@ -69,6 +71,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     int pos;
     Function function;
     DatabaseHandler db;
+    ItemTouchHelper mItemTouchHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,7 +101,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         songOfPlaylist = new ArrayList<>();
         AllSong = new ArrayList<>();
         //function.getSongList(getActivity(), AllSong);
-        AllSong = ((MainActivity)getActivity()).getAllSong();
+        AllSong = ((MainActivity) getActivity()).getAllSong();
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
         View toolbar = getActivity().findViewById(R.id.toolbar);
@@ -274,7 +277,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     BroadcastReceiver PlaylistBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().toString().equals("Remove")) {
+            if (intent.getAction().equals("Remove")) {
                 final String plid = playlists.get(pos).getListid();
                 final Long songid = intent.getLongExtra("songid", 0);
 
@@ -301,7 +304,9 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
                         );
                 AlertDialog art = aat.create();
                 art.show();
-            } else if (intent.getAction().toString().equals("Unregister")) {
+            } else if (intent.getAction().equals("Changed")) {
+                myService.setSongListFrag4(songAdapterPlaylist.getSongs());
+            } else if (intent.getAction().equals("Unregister")) {
                 getActivity().unregisterReceiver(PlaylistBroadcast);
             }
         }
@@ -323,7 +328,15 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
             }
         }
 
-        songAdapterPlaylist = new RecyclerSongAdapter(getActivity(), songOfPlaylist);
+        songAdapterPlaylist = new SongInPlaylistAdapter(getActivity(), songOfPlaylist);
+
+        songAdapterPlaylist.setListId(playlists.get(position).getListid());
+
+        ItemTouchHelper.Callback callback =
+                new EditItemTouchHelperCallback(songAdapterPlaylist);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(songInPlaylist);
+
         RecyclerView.LayoutManager mManager = new LinearLayoutManager(getContext());
         songInPlaylist.setLayoutManager(mManager);
         songInPlaylist.setAdapter(songAdapterPlaylist);

@@ -216,22 +216,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                         case 0:
                             myService.setListNumber(1);
                             myService.setListNumberFrag(1);
-                            songAdapter.setOnPlaylist(0);
+                            //songAdapter.setOnPlaylist(0);
                             break;
                         case 1:
                             myService.setListNumber(2);
                             myService.setListNumberFrag(2);
-                            songAdapter.setOnPlaylist(0);
+                            //songAdapter.setOnPlaylist(0);
                             break;
                         case 2:
                             myService.setListNumber(3);
                             myService.setListNumberFrag(3);
-                            songAdapter.setOnPlaylist(0);
+                            //songAdapter.setOnPlaylist(0);
                             break;
                         case 3:
                             myService.setListNumber(4);
                             myService.setListNumberFrag(4);
-                            songAdapter.setOnPlaylist(1);
+                            //songAdapter.setOnPlaylist(1);
                             break;
                         case 4:
                             myService.setListNumber(5);
@@ -591,7 +591,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }
         //If SlingUp Panel is collaped and the inner result is show, close the inner result layout and back to the result
-        else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
+        else if (slidingLayout != null && (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay3.getVisibility() == View.VISIBLE)) {
             mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.VISIBLE);
@@ -599,12 +599,12 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             myService.setListNumber(6);
         }
         //If SlidingUp Panel is collapsed and the result is show, close the result layout and back to the main layout, set Listnumber to Fragments
-        else if ((slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
+        else if (slidingLayout != null && (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay2.getVisibility() == View.VISIBLE)) {
             mainlay3.setVisibility(View.INVISIBLE);
             mainlay2.setVisibility(View.INVISIBLE);
             mainlay1.setVisibility(View.VISIBLE);
-            myService.setListNumber(myService.getListNumberFrag());
+            myService.setListNumber(myService.getListNumberFrag()); //Turn back to list content not searchview, so set the listNumber to the fragNumber before
         } else if ((myService.getListNumber() == 2) &&
                 (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED)
                 && index == 2) {

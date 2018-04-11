@@ -219,4 +219,26 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(query);
         db.close();
     }
+
+    public void SwapSongOfPlaylist(String PlayID, String SongIdOld, String SongIdNew) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(KEY_SONGID, SongIdNew);
+
+        ContentValues values1 = new ContentValues();
+        values1.put(KEY_SONGID, SongIdOld);
+
+        ContentValues values2 = new ContentValues();
+        values2.put(KEY_SONGID, String.valueOf(-1));
+
+        db.update(TABLE_SONGID, values2, KEY_PLID + " = ? AND " + KEY_SONGID + " = ?", new String[]{PlayID, SongIdOld});
+        db.update(TABLE_SONGID, values1, KEY_PLID + " = ? AND " + KEY_SONGID + " = ?", new String[]{PlayID, SongIdNew});
+        db.update(TABLE_SONGID, values, KEY_PLID + " = ? AND " + KEY_SONGID + " = ?", new String[]{PlayID, String.valueOf(-1)});
+
+        values.clear();
+        values1.clear();
+        values2.clear();
+        db.close();
+    }
 }
