@@ -4,8 +4,6 @@ import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import com.bumptech.glide.Glide;
-
 public class ToolbarHidingOnScrollListener extends RecyclerView.OnScrollListener {
 
     Context mContext;
@@ -33,14 +31,14 @@ public class ToolbarHidingOnScrollListener extends RecyclerView.OnScrollListener
                 } else {
                     showToolbar();
                 }
-                Glide.with(mContext).resumeRequests();
+                //Glide.with(mContext).resumeRequests();
                 break;
             case RecyclerView.SCROLL_STATE_DRAGGING:
-                Glide.with(mContext).pauseRequests();
+                //Glide.with(mContext).pauseRequests();
                 tabContainer.clearAnimation();
                 break;
             case RecyclerView.SCROLL_STATE_SETTLING:
-                Glide.with(mContext).pauseRequests();
+                //Glide.with(mContext).pauseRequests();
                 tabContainer.clearAnimation();
                 break;
         }

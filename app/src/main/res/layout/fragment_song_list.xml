@@ -7,37 +7,39 @@
     android:orientation="vertical"
     tools:context=".Activities.MainActivity">
 
-    <LinearLayout
-        android:id="@+id/layer2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:padding="5dp">
+    <!--<LinearLayout-->
+        <!--android:id="@+id/layer2"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@android:color/transparent"-->
+        <!--android:padding="5dp">-->
 
-        <EditText
-            android:id="@+id/searchbox"
-            android:layout_width="300dp"
-            android:layout_height="35dp"
-            android:background="@drawable/edtbackground"
-            android:gravity="top"
-            android:inputType="text"
-            android:padding="5dp"
-            android:textColor="#ffffff" />
+        <!--<EditText-->
+            <!--android:id="@+id/searchbox"-->
+            <!--android:layout_width="300dp"-->
+            <!--android:layout_height="35dp"-->
+            <!--android:background="@drawable/edtbackground"-->
+            <!--android:gravity="top"-->
+            <!--android:inputType="text"-->
+            <!--android:padding="5dp"-->
+            <!--android:textColor="#ffffff" />-->
 
-        <ImageButton
-            android:id="@+id/btnsearch"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="10dp"
-            android:background="@android:color/transparent"
-            android:scaleType="centerCrop"
-            android:src="@drawable/searchw" />
-    </LinearLayout>
+        <!--<ImageButton-->
+            <!--android:id="@+id/btnsearch"-->
+            <!--android:layout_width="40dp"-->
+            <!--android:layout_height="40dp"-->
+            <!--android:layout_marginLeft="10dp"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--android:scaleType="centerCrop"-->
+            <!--android:src="@drawable/searchw" />-->
+    <!--</LinearLayout>-->
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/song_list"
         android:layout_width="match_parent"
-        android:layout_height="466dp"
+        android:layout_height="match_parent"
+        android:paddingTop="44dp"
+        android:clipToPadding="false"
         android:background="@android:color/transparent"
         android:nestedScrollingEnabled="false"
         android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>

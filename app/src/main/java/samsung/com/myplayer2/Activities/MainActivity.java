@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -37,7 +36,6 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
-import samsung.com.myplayer2.Adapter.FragmentAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerAlbumAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerArtistAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
@@ -412,9 +410,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
         smartTabLayout.setViewPager(viewPager);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        //FragmentManager fragmentManager = getSupportFragmentManager();
 
-        FragmentAdapter fragmentAdapter = new FragmentAdapter(fragmentManager, MainActivity.this);
+        //FragmentAdapter fragmentAdapter = new FragmentAdapter(fragmentManager, MainActivity.this);
 
         btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
         next = (ImageButton) findViewById(R.id.btn_next);
@@ -533,7 +531,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         txtTitle.setText(saveTitle);
         txtArtist.setText(saveArtist);
         if (!savePath.equals("0"))
-            Glide.with(context).load(function.BitmapToByte(function.GetBitmap(savePath))).into(imgDisc);
+            Glide.with(context).load(function.GetBitMapByte(savePath)).into(imgDisc);
 
         super.onResume();
     }

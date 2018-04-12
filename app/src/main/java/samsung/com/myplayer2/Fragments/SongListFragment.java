@@ -4,30 +4,19 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Activities.MainActivity;
@@ -49,7 +38,7 @@ public class SongListFragment extends Fragment {
     public ArrayList<Song> SongList;
     private ArrayList<Song> SongFilterList;
     private RecyclerView songView;
-    EditText searchbox;
+    //    EditText searchbox;
     Context context;
     Animation animation;
 
@@ -60,28 +49,28 @@ public class SongListFragment extends Fragment {
     TextView textTotal;
     TextView txtTitle;
     SeekBar seekBar;
-    ImageButton btnsearch;
+//    ImageButton btnsearch;
 
     Function function;
 
-    public void SetTimeTotal() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-        textTotal.setText(simpleDateFormat.format(myService.getDur()));
-        seekBar.setMax(myService.getDur());
-    }
-
-    public void UpdateTimeSong() {
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
-                textTimeSong.setText(simpleDateFormat.format(myService.getPosn()));
-                seekBar.setProgress(myService.getPosn());
-                handler.postDelayed(this, 500);
-            }
-        }, 100);
-    }
+//    public void SetTimeTotal() {
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+//        textTotal.setText(simpleDateFormat.format(myService.getDur()));
+//        seekBar.setMax(myService.getDur());
+//    }
+//
+//    public void UpdateTimeSong() {
+//        final Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+//                textTimeSong.setText(simpleDateFormat.format(myService.getPosn()));
+//                seekBar.setProgress(myService.getPosn());
+//                handler.postDelayed(this, 500);
+//            }
+//        }, 100);
+//    }
 
     @Override
     public View onCreateView(final LayoutInflater inflater, ViewGroup container,
@@ -93,7 +82,7 @@ public class SongListFragment extends Fragment {
 
         songView = (RecyclerView) v.findViewById(R.id.song_list);
 
-        btnsearch = (ImageButton) v.findViewById(R.id.btnsearch);
+//        btnsearch = (ImageButton) v.findViewById(R.id.btnsearch);
 
         textTimeSong = (TextView) getActivity().findViewById(R.id.time_song);
 
@@ -103,7 +92,7 @@ public class SongListFragment extends Fragment {
 
         seekBar = (SeekBar) getActivity().findViewById(R.id.seekbar_song);
 
-        searchbox = (EditText) v.findViewById(R.id.searchbox);
+//        searchbox = (EditText) v.findViewById(R.id.searchbox);
 
         animation = AnimationUtils.loadAnimation(getActivity(), R.anim.disc_rolate);
 
@@ -115,7 +104,7 @@ public class SongListFragment extends Fragment {
 
         SongFilterList = new ArrayList<>();
 
-        //function.getSongList(getActivity(), SongList);
+//        function.getSongList(getActivity(), SongList);
         SongList = ((MainActivity) getActivity()).getAllSong();
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
@@ -129,91 +118,93 @@ public class SongListFragment extends Fragment {
         songView.setAdapter(songAdt);
         songView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
-        searchbox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.length() == 0) {
-                    //SongList.clear();
-                    //getSongList();
-                    //RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(SongList);
-                    //songView.setAdapter(songAdapter1);
-                } /*else {
-                    songView.setAdapter(null);
-                    SongList.clear();
-                    getSongByName(charSequence.toString().toLowerCase());
-                    RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(SongList);
-                    songView.setAdapter(songAdapter2);
-                }*/
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
-
-        searchbox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    /* Write your logic here that will be executed when user taps next button */
-                    if (searchbox.getText() != null) {
-                        songView.setAdapter(null);
-                        SongFilterList.clear();
-                        getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
-                        RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(getContext(), SongFilterList);
-                        songView.setAdapter(songAdapter1);
-                        myService.setSongListFrag1(SongFilterList);
-                    } else {
-                        songView.setAdapter(null);
-                        songView.setAdapter(songAdt);
-                        myService.setSongListFrag1(SongList);
-                    }
-                }
-                return false;
-            }
-        });
-
-        btnsearch.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                switch (motionEvent.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
-                        ImageButton v = (ImageButton) view;
-                        v.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
-                        view.invalidate();
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP:
-
-                        // Your action here on button click
-                        if (searchbox.getText() != null) {
-                            songView.setAdapter(null);
-                            SongFilterList.clear();
-                            getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
-                            RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(getContext(), SongFilterList);
-                            songView.setAdapter(songAdapter2);
-                            myService.setSongListFrag1(SongFilterList);
-                        } else {
-                            songView.setAdapter(null);
-                            songView.setAdapter(songAdt);
-                            myService.setSongListFrag1(SongList);
-                        }
+//        searchbox.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                if (charSequence.length() == 0) {
+//                    //SongList.clear();
+//                    //getSongList();
+//                    //RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(SongList);
+//                    //songView.setAdapter(songAdapter1);
+//                } else {
+//                    songView.setAdapter(null);
+//                    SongList.clear();
+//                    getSongByName(charSequence.toString().toLowerCase());
+//                    RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(SongList);
+//                    songView.setAdapter(songAdapter2);
+//                }
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//            }
+//        });
+//
+//        searchbox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                     Write your logic here that will be executed when user taps next button
+//                    if (searchbox.getText() != null) {
+//                        songView.setAdapter(null);
+//                        SongFilterList.clear();
+//                        getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
+//                        RecyclerSongAdapter songAdapter1 = new RecyclerSongAdapter(getContext(), SongFilterList);
+//                        songView.setAdapter(songAdapter1);
+//                        myService.setSongListFrag1(SongFilterList);
+//                    } else {
+//                        songView.setAdapter(null);
+//                        songView.setAdapter(songAdt);
+//                        myService.setSongListFrag1(SongList);
+//                    }
+//                }
+//                return false;
+//            }
+//        });
 
 
-                    case MotionEvent.ACTION_CANCEL: {
-                        ImageButton v = (ImageButton) view;
-                        v.getBackground().clearColorFilter();
-                        v.invalidate();
-                        break;
-                    }
-                }
-                return false;
-            }
-        });
+//        btnsearch.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View view, MotionEvent motionEvent) {
+//                switch (motionEvent.getAction()) {
+//                    case MotionEvent.ACTION_DOWN: {
+//                        ImageButton v = (ImageButton) view;
+//                        v.getBackground().setColorFilter(Color.RED, PorterDuff.Mode.SRC_ATOP);
+//                        view.invalidate();
+//                        break;
+//                    }
+//                    case MotionEvent.ACTION_UP:
+//
+//                        // Your action here on button click
+//                        if (searchbox.getText() != null) {
+//                            songView.setAdapter(null);
+//                            SongFilterList.clear();
+//                            getSongByName(searchbox.getText().toString().toLowerCase(), SongList);
+//                            RecyclerSongAdapter songAdapter2 = new RecyclerSongAdapter(getContext(), SongFilterList);
+//                            songView.setAdapter(songAdapter2);
+//                            myService.setSongListFrag1(SongFilterList);
+//                        } else {
+//                            songView.setAdapter(null);
+//                            songView.setAdapter(songAdt);
+//                            myService.setSongListFrag1(SongList);
+//                        }
+//
+//
+//                    case MotionEvent.ACTION_CANCEL: {
+//                        ImageButton v = (ImageButton) view;
+//                        v.getBackground().clearColorFilter();
+//                        v.invalidate();
+//                        break;
+//                    }
+//                }
+//                return false;
+//            }
+//        });
 
         return v;
     }

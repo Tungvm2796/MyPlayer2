@@ -5,6 +5,12 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+
+
+    <include layout="@layout/search_result_layout"></include>
+
+    <include layout="@layout/search_detail_layout"></include>
+
     <LinearLayout
         android:id="@+id/mainlay1"
         android:layout_width="match_parent"
@@ -21,7 +27,7 @@
                 android:id="@+id/colored_background_view"
                 android:layout_width="wrap_content"
                 android:layout_height="192dp"
-                android:background="#0bdb0b" />
+                android:background="#0b65db" />
 
             <android.support.v4.view.ViewPager
                 android:id="@+id/viewpager1"
@@ -77,10 +83,6 @@
         </FrameLayout>
 
     </LinearLayout>
-
-    <include layout="@layout/search_result_layout"></include>
-
-    <include layout="@layout/search_detail_layout"></include>
 
     <com.arlib.floatingsearchview.FloatingSearchView
         android:id="@+id/floating_search_view"
