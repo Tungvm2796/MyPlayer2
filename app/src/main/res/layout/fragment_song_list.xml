@@ -38,7 +38,7 @@
         android:id="@+id/song_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="44dp"
+        android:paddingTop="108dp"
         android:clipToPadding="false"
         android:background="@android:color/transparent"
         android:nestedScrollingEnabled="false"

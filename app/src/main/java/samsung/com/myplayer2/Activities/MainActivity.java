@@ -11,13 +11,21 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -30,6 +38,8 @@ import android.widget.Toast;
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.bumptech.glide.Glide;
+import com.musixmatch.lyrics.MissingPluginException;
+import com.musixmatch.lyrics.musiXmatchLyricsConnector;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -111,6 +121,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     View tabcontainer;
     View coloredBackgroundView;
+    Toolbar toolbar;
+
+    private DrawerLayout drawerLayout;
+
+    private musiXmatchLyricsConnector mLyricsPlugin = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,6 +158,27 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         tabcontainer = findViewById(R.id.tabcontainer);
         coloredBackgroundView = findViewById(R.id.colored_background_view);
 
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                item.setChecked(true);
+
+                drawerLayout.closeDrawers();
+
+                return true;
+            }
+        });
 
         MainSongList = new ArrayList<>();
         SongListOfResult = new ArrayList<>();
@@ -385,6 +421,23 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 myService.setListNumber(6);
             }
         });
+
+        mLyricsPlugin = new musiXmatchLyricsConnector(this);
+        mLyricsPlugin.setLoadingMessage("Your custom title", "Your custom message");
+
+        Button btnhide = (Button) findViewById(R.id.btn_hide);
+        btnhide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    mLyricsPlugin.startLyricsActivity(myService.getSongArtist(), myService.getSongTitle());
+                } catch (MissingPluginException e) {
+                    mLyricsPlugin.downloadLyricsPlugin();
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -533,6 +586,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         if (!savePath.equals("0"))
             Glide.with(context).load(function.GetBitMapByte(savePath)).into(imgDisc);
 
+        mLyricsPlugin.doBindService();
+
         super.onResume();
     }
 
@@ -543,6 +598,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         Intent intent = new Intent("ToPlaylist");
         intent.setAction("Unregister");
         sendBroadcast(intent);
+
+        mLyricsPlugin.doUnbindService();
 
         super.onPause();
     }
@@ -761,5 +818,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     public ArrayList<Song> getAllSong() {
         return MainSongList;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

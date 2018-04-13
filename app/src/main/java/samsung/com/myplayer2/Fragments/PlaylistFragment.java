@@ -15,6 +15,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -73,6 +74,8 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     DatabaseHandler db;
     ItemTouchHelper mItemTouchHelper;
 
+    Toolbar toolbar;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -104,7 +107,7 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
         AllSong = ((MainActivity) getActivity()).getAllSong();
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
-        View toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar = getActivity().findViewById(R.id.toolbar);
         View lasttab = getActivity().findViewById(R.id.viewpagertab);
         View coloredBackgroundView = getActivity().findViewById(R.id.colored_background_view);
 

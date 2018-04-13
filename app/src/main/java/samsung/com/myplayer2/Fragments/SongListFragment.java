@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,6 +51,8 @@ public class SongListFragment extends Fragment {
     TextView txtTitle;
     SeekBar seekBar;
 //    ImageButton btnsearch;
+
+    Toolbar toolbar;
 
     Function function;
 
@@ -108,7 +111,7 @@ public class SongListFragment extends Fragment {
         SongList = ((MainActivity) getActivity()).getAllSong();
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
-        View toolbar = getActivity().findViewById(R.id.toolbar);
+        toolbar = getActivity().findViewById(R.id.toolbar);
         View lasttab = getActivity().findViewById(R.id.viewpagertab);
         View coloredBackgroundView = getActivity().findViewById(R.id.colored_background_view);
 

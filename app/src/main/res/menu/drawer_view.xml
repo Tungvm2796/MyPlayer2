@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_song"
+            android:icon="@drawable/ic_audiotrack"
+            android:title="All Song" />
+        <item
+            android:id="@+id/nav_album"
+            android:icon="@drawable/ic_album"
+            android:title="Albums" />
+        <item
+            android:id="@+id/nav_artist"
+            android:icon="@drawable/ic_artist"
+            android:title="Artist" />
+        <item
+            android:id="@+id/nav_playlist"
+            android:icon="@drawable/ic_playlist"
+            android:title="Playlist" />
+        <item
+            android:id="@+id/nav_equalizer"
+            android:icon="@drawable/ic_equalizer"
+            android:title="Equalizer" />
+    </group>
+</menu>
