@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.media.audiofx.AudioEffect;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -58,7 +59,7 @@ import samsung.com.myplayer2.Class.Suggestion;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
-public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdapter.AlbumClickListener, RecyclerArtistAdapter.ArtistClickListener {
+public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdapter.AlbumClickListener, RecyclerArtistAdapter.ArtistClickListener, NavigationView.OnNavigationItemSelectedListener {
 
     private ArrayList<Song> MainSongList;
     private ArrayList<Song> SongListOfResult;
@@ -168,17 +169,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
-                item.setChecked(true);
-
-                drawerLayout.closeDrawers();
-
-                return true;
-            }
-        });
+        navigationView.setNavigationItemSelectedListener(this);
 
         MainSongList = new ArrayList<>();
         SongListOfResult = new ArrayList<>();
@@ -828,5 +819,42 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        switch (item.getItemId()) {
+
+            case R.id.nav_song:
+                viewPager.setCurrentItem(0, true);
+                break;
+
+            case R.id.nav_album:
+                viewPager.setCurrentItem(1, true);
+                break;
+
+            case R.id.nav_artist:
+                viewPager.setCurrentItem(2, true);
+                break;
+
+            case R.id.nav_playlist:
+                viewPager.setCurrentItem(3, true);
+                break;
+
+            case R.id.nav_equalizer:
+                Intent intent = new Intent(AudioEffect.ACTION_DISPLAY_AUDIO_EFFECT_CONTROL_PANEL);
+                if ((intent.resolveActivity(getPackageManager()) != null)) {
+                    startActivityForResult(intent, RESULT_OK);
+                } else {
+                    // No equalizer found :(
+                }
+                break;
+
+        }
+        //close navigation drawer
+        item.setChecked(true);
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
