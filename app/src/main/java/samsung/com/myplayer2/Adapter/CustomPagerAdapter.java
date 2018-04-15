@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import samsung.com.myplayer2.Fragments.AlbumFragment;
 import samsung.com.myplayer2.Fragments.ArtistFragment;
-import samsung.com.myplayer2.Fragments.OnlineFragment;
+import samsung.com.myplayer2.Fragments.GenresFragment;
 import samsung.com.myplayer2.Fragments.PlaylistFragment;
 import samsung.com.myplayer2.Fragments.SongListFragment;
 import samsung.com.myplayer2.R;
@@ -56,7 +56,7 @@ public class CustomPagerAdapter extends FragmentPagerAdapter {
 
             case 4:
 
-                frag = new OnlineFragment();
+                frag = new GenresFragment();
 
                 break;
 

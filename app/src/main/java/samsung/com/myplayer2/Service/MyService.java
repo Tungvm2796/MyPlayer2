@@ -620,14 +620,6 @@ public class MyService extends Service implements
         SongListFrag5 = songListFrag5;
     }
 
-    public void setSongListResult(ArrayList<Song> songListResult) {
-        SongListResult = songListResult;
-    }
-
-    public void setSongListInnerResult(ArrayList<Song> songListInnerResult) {
-        SongListInnerResult = songListInnerResult;
-    }
-
     public ArrayList<Song> getSongListFrag1() {
         return SongListFrag1;
     }
@@ -670,6 +662,14 @@ public class MyService extends Service implements
 
     public void setListNumberFrag(int listNumberFrag) {
         ListNumberFrag = listNumberFrag;
+    }
+
+    public void setSongListResult(ArrayList<Song> songListResult) {
+        SongListResult = songListResult;
+    }
+
+    public void setSongListInnerResult(ArrayList<Song> songListInnerResult) {
+        SongListInnerResult = songListInnerResult;
     }
 
     public Song getCurSong() {

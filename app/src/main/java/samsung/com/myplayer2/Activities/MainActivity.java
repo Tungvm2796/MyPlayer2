@@ -1,6 +1,9 @@
 package samsung.com.myplayer2.Activities;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,6 +31,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -261,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                         case 4:
                             myService.setListNumber(5);
                             myService.setListNumberFrag(5);
+                            //songAdapter.setOnPlaylist(0);
                             break;
                     }
                 }
@@ -639,17 +644,16 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         //If SlingUp Panel is collaped and the inner result is show, close the inner result layout and back to the result
         else if (slidingLayout != null && (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay3.getVisibility() == View.VISIBLE)) {
-            mainlay3.setVisibility(View.INVISIBLE);
-            mainlay2.setVisibility(View.VISIBLE);
-            mainlay1.setVisibility(View.INVISIBLE);
+            CloseLay3();
+            OpenLay2();
+            crossFadeAnimation(mainlay2, mainlay3, 270);
             myService.setListNumber(6);
         }
         //If SlidingUp Panel is collapsed and the result is show, close the result layout and back to the main layout, set Listnumber to Fragments
         else if (slidingLayout != null && (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED) &&
                 (mainlay2.getVisibility() == View.VISIBLE)) {
-            mainlay3.setVisibility(View.INVISIBLE);
-            mainlay2.setVisibility(View.INVISIBLE);
-            mainlay1.setVisibility(View.VISIBLE);
+            CloseLay2();
+            OpenLay1();
             myService.setListNumber(myService.getListNumberFrag()); //Turn back to list content not searchview, so set the listNumber to the fragNumber before
         } else if ((myService.getListNumber() == 2) &&
                 (slidingLayout.getPanelState() == SlidingUpPanelLayout.PanelState.COLLAPSED)
@@ -663,9 +667,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
     private void SetDataForResultView(String keyword) {
 
-        mainlay1.setVisibility(View.INVISIBLE);
-        mainlay2.setVisibility(View.VISIBLE);
-        mainlay3.setVisibility(View.INVISIBLE);
+        CloseLay1();
+        CloseLay2();
+        CloseLay3();
+
+        OpenLay2();
 
         myService.setListNumber(6);
         SongListOfResult.clear();
@@ -727,7 +733,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 return false;
             }
         };
-        ;
+
         resultAlbum.setLayoutManager(mManager1);
         resultAlbum.setAdapter(albumAdapterOfResult);
 
@@ -740,7 +746,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 return false;
             }
         };
-        ;
+
         resultArtist.setLayoutManager(mManager2);
         resultArtist.setAdapter(artistAdapterOfResult);
 
@@ -762,9 +768,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     @Override
     public void onAlbumClick(View view, int position) {
 
-        mainlay1.setVisibility(View.INVISIBLE);
-        mainlay2.setVisibility(View.INVISIBLE);
-        mainlay3.setVisibility(View.VISIBLE);
+        OpenLay3();
+        crossFadeAnimation(mainlay3, mainlay2, 270);
 
         myService.setListNumber(7);
         SongListOfInnerResult.clear();
@@ -786,9 +791,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     @Override
     public void onArtistClick(View view, int position) {
 
-        mainlay1.setVisibility(View.INVISIBLE);
-        mainlay2.setVisibility(View.INVISIBLE);
-        mainlay3.setVisibility(View.VISIBLE);
+        OpenLay3();
+        crossFadeAnimation(mainlay3, mainlay2, 270);
 
         myService.setListNumber(7);
         SongListOfInnerResult.clear();
@@ -851,10 +855,102 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 }
                 break;
 
+            case R.id.nav_online:
+
         }
         //close navigation drawer
         item.setChecked(true);
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void OpenLay1() {
+        mainlay1.animate().translationX(0);
+        tabcontainer.animate().translationX(0).setDuration(720);
+        toolbar.animate().translationX(0).setDuration(900);
+        mainlay1.setVisibility(View.VISIBLE);
+    }
+
+    public void CloseLay1() {
+        mainlay1.clearAnimation();
+        toolbar.clearAnimation();
+        tabcontainer.clearAnimation();
+
+        mainlay1.animate().translationX(-mainlay1.getWidth()).setDuration(360);
+        toolbar.animate().translationX(toolbar.getWidth());
+        tabcontainer.animate().translationX(tabcontainer.getWidth());
+
+        //mainlay1.setVisibility(View.INVISIBLE);
+    }
+
+    public void OpenLay2() {
+        mainlay2.animate().translationX(0);
+        mainlay2.setVisibility(View.VISIBLE);
+    }
+
+    public void CloseLay2() {
+        mainlay2.animate().translationX(-mainlay2.getWidth());
+        mainlay2.setVisibility(View.INVISIBLE);
+    }
+
+    public void OpenLay3() {
+        mainlay3.animate().translationX(0);
+        mainlay3.setVisibility(View.VISIBLE);
+    }
+
+    public void CloseLay3() {
+        mainlay3.animate().translationX(-mainlay3.getWidth());
+        mainlay3.setVisibility(View.INVISIBLE);
+    }
+
+    private void crossFadeAnimation(final View fadeInTarget, final View fadeOutTarget, long duration) {
+        AnimatorSet mAnimationSet = new AnimatorSet();
+        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(fadeOutTarget, View.ALPHA, 1f, 0f);
+        fadeOut.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        });
+        fadeOut.setInterpolator(new LinearInterpolator());
+
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(fadeInTarget, View.ALPHA, 0f, 1f);
+        fadeIn.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                fadeInTarget.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+        fadeIn.setInterpolator(new LinearInterpolator());
+        mAnimationSet.setDuration(duration);
+        mAnimationSet.playTogether(fadeOut, fadeIn);
+        mAnimationSet.start();
     }
 }

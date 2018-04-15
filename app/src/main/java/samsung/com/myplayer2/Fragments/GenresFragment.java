@@ -15,107 +15,83 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Activities.MainActivity;
-import samsung.com.myplayer2.Adapter.RecyclerArtistAdapter;
+import samsung.com.myplayer2.Adapter.RecyclerGenresAdapter;
 import samsung.com.myplayer2.Adapter.RecyclerSongAdapter;
-import samsung.com.myplayer2.Class.Artist;
 import samsung.com.myplayer2.Class.Function;
 import samsung.com.myplayer2.Class.Song;
 import samsung.com.myplayer2.Class.ToolbarHidingOnScrollListener;
 import samsung.com.myplayer2.R;
 import samsung.com.myplayer2.Service.MyService;
 
-
 /**
  * A simple {@link Fragment} subclass.
  */
+public class GenresFragment extends Fragment implements RecyclerGenresAdapter.GenresClickListener {
 
-public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.ArtistClickListener {
 
-
-    public ArtistFragment() {
+    public GenresFragment() {
         // Required empty public constructor
     }
 
     MyService myService;
     private boolean musicBound = false;
     private Intent playIntent;
-    Button clickme;
-    Button clickmeback;
-    private ArrayList<Artist> artists;
-    private ArrayList<Song> songListTake;
-    private ArrayList<Song> songListOfArtist;
-    RecyclerView artistView;
-    RecyclerView songOfArtist;
-    Context context;
-    LinearLayout lin1;
-    LinearLayout lin2;
+
+    RecyclerGenresAdapter recyclerGenresAdapter;
+    RecyclerView genresView;
+    ArrayList<String> genList;
     Function function;
 
     Toolbar toolbar;
+
+    ArrayList<Song> AllSong;
+    ArrayList<Song> songList;
+    LinearLayout lin1;
+    LinearLayout lin2;
+    RecyclerView songOfGenres;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_artist, container, false);
+        View v = inflater.inflate(R.layout.fragment_genres, container, false);
         function = new Function();
-        clickme = (Button) v.findViewById(R.id.btnlay);
-        clickmeback = (Button) v.findViewById(R.id.btnlay2);
-        context = super.getActivity();
-        artistView = (RecyclerView) v.findViewById(R.id.artistView);
-        songOfArtist = (RecyclerView) v.findViewById(R.id.song_of_artist);
 
         lin1 = (LinearLayout) v.findViewById(R.id.lin1);
         lin2 = (LinearLayout) v.findViewById(R.id.lin2);
 
-        setRetainInstance(true);
 
-        clickme.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                lin1.setVisibility(View.INVISIBLE);
-                lin2.setVisibility(View.VISIBLE);
-            }
-        });
+        songList = new ArrayList<>();
 
-        clickmeback.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                lin1.setVisibility(View.VISIBLE);
-                lin2.setVisibility(View.INVISIBLE);
-            }
-        });
+        AllSong = new ArrayList<>();
+        AllSong = ((MainActivity) getActivity()).getAllSong();
 
-        songListOfArtist = new ArrayList<>();
+        genList = new ArrayList<>();
+        function.getGenres(getContext(), genList);
 
-        songListTake = new ArrayList<>();
-        //function.getSongList(getActivity(), songListTake);
-        songListTake = ((MainActivity)getActivity()).getAllSong();
+        genresView = (RecyclerView) v.findViewById(R.id.genresView);
 
-        artists = new ArrayList<>();
-        function.getArtist(getActivity(), artists);
+        songOfGenres = (RecyclerView) v.findViewById(R.id.song_of_genres);
+        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
+        songOfGenres.setLayoutManager(manager);
+        songOfGenres.setAdapter(null);
 
         View tabcontainer = getActivity().findViewById(R.id.tabcontainer);
         toolbar = getActivity().findViewById(R.id.toolbar);
         View lasttab = getActivity().findViewById(R.id.viewpagertab);
         View coloredBackgroundView = getActivity().findViewById(R.id.colored_background_view);
 
+        recyclerGenresAdapter = new RecyclerGenresAdapter(getContext(), genList);
+        recyclerGenresAdapter.setGenresClickListener(this);
         RecyclerView.LayoutManager mManager = new GridLayoutManager(getContext(), 2);
-        artistView.setLayoutManager(mManager);
-        RecyclerArtistAdapter artistAdt = new RecyclerArtistAdapter(getContext(), artists);
-        artistAdt.setArtistClickListener(this);
-        artistView.setAdapter(artistAdt);
-        artistView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
-
-        RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
-        songOfArtist.setLayoutManager(manager);
-        songOfArtist.setAdapter(null);
+        genresView.setLayoutManager(mManager);
+        genresView.setAdapter(recyclerGenresAdapter);
+        genresView.addOnScrollListener(new ToolbarHidingOnScrollListener(getActivity(), tabcontainer, toolbar, lasttab, coloredBackgroundView));
 
         return v;
     }
@@ -127,7 +103,7 @@ public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.Ar
             //get service
             myService = binder.getService();
             //pass list
-            //myService.setList(songListTake);
+            //myService.setList(AllSong);
             musicBound = true;
         }
 
@@ -154,19 +130,24 @@ public class ArtistFragment extends Fragment implements RecyclerArtistAdapter.Ar
         }
     }
 
+
     @Override
-    public void onArtistClick(View view, int position) {
+    public void onGenresClick(View view, int position) {
+        songList.clear();
+        songOfGenres.setAdapter(null);
+
         lin1.setVisibility(View.INVISIBLE);
         lin2.setVisibility(View.VISIBLE);
-        songListOfArtist.clear();
 
-        for (int i = 0; i < songListTake.size(); i++)
-            if (songListTake.get(i).getArtist().equals(artists.get(position).getName()))
-                songListOfArtist.add(songListTake.get(i));
+        for (int i = 0; i < AllSong.size(); i++) {
+            if (AllSong.get(i).getGenres() != null) {
+                if (AllSong.get(i).getGenres().equals(genList.get(position)))
+                    songList.add(AllSong.get(i));
+            }
+        }
 
-        songOfArtist.setAdapter(null);
-        RecyclerSongAdapter songAdt = new RecyclerSongAdapter(getContext(), songListOfArtist);
-        songOfArtist.setAdapter(songAdt);
-        myService.setSongListFrag3(songListOfArtist);
+        RecyclerSongAdapter newSongAdt = new RecyclerSongAdapter(getContext(), songList);
+        songOfGenres.setAdapter(newSongAdt);
+        myService.setSongListFrag5(songList);
     }
 }

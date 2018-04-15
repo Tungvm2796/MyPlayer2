@@ -12,7 +12,9 @@
 
     android:layout_height="match_parent"
 
-    android:orientation="vertical">
+    android:orientation="vertical"
+
+    android:animateLayoutChanges="true">
 
     <Button
         android:layout_width="match_parent"

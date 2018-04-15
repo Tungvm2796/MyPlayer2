@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <group android:checkableBehavior="single">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/player"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_song"
             android:icon="@drawable/ic_audiotrack"
-            android:title="All Song" />
+            android:title="@string/allSong" />
         <item
             android:id="@+id/nav_album"
             android:icon="@drawable/ic_album"
-            android:title="Albums" />
+            android:title="@string/albums" />
         <item
             android:id="@+id/nav_artist"
             android:icon="@drawable/ic_artist"
-            android:title="Artist" />
+            android:title="@string/artist" />
         <item
             android:id="@+id/nav_playlist"
             android:icon="@drawable/ic_playlist"
-            android:title="Playlist" />
+            android:title="@string/playlist" />
+        <item
+            android:id="@+id/nav_online"
+            android:icon="@drawable/ic_stream_play"
+            android:title="@string/online" />
+    </group>
+    <group
+        android:id="@+id/setting"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_equalizer"
             android:icon="@drawable/ic_equalizer"
-            android:title="Equalizer" />
+            android:title="@string/equaliser" />
     </group>
 </menu>
