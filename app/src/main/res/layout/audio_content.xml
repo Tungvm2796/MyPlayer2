@@ -5,10 +5,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <include layout="@layout/search_detail_layout"></include>
 
     <include layout="@layout/search_result_layout"></include>
-
-    <include layout="@layout/search_detail_layout"></include>
 
     <LinearLayout
         android:id="@+id/mainlay1"

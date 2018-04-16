@@ -139,6 +139,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + TABLE_PLAYLIST;
         Cursor cursor = db.rawQuery(query, null);
+        cursor.close();
         return cursor.getCount();
     }
 

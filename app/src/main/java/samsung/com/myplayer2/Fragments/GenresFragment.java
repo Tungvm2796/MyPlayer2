@@ -62,8 +62,8 @@ public class GenresFragment extends Fragment implements RecyclerGenresAdapter.Ge
         View v = inflater.inflate(R.layout.fragment_genres, container, false);
         function = new Function();
 
-        lin1 = (LinearLayout) v.findViewById(R.id.lin1);
-        lin2 = (LinearLayout) v.findViewById(R.id.lin2);
+        lin1 = v.findViewById(R.id.lin1);
+        lin2 = v.findViewById(R.id.lin2);
 
 
         songList = new ArrayList<>();
@@ -74,9 +74,9 @@ public class GenresFragment extends Fragment implements RecyclerGenresAdapter.Ge
         genList = new ArrayList<>();
         function.getGenres(getContext(), genList);
 
-        genresView = (RecyclerView) v.findViewById(R.id.genresView);
+        genresView = v.findViewById(R.id.genresView);
 
-        songOfGenres = (RecyclerView) v.findViewById(R.id.song_of_genres);
+        songOfGenres = v.findViewById(R.id.song_of_genres);
         RecyclerView.LayoutManager manager = new LinearLayoutManager(getContext());
         songOfGenres.setLayoutManager(manager);
         songOfGenres.setAdapter(null);

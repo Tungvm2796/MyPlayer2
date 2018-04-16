@@ -57,10 +57,10 @@ public class RecyclerSongAdapter extends RecyclerView.Adapter<RecyclerSongAdapte
         public MyRecyclerSongHolder(View songLay) {
             super(songLay);
             //get title and artist views
-            songView = (TextView) songLay.findViewById(R.id.song_title);
-            artistView = (TextView) songLay.findViewById(R.id.song_artist);
-            coverimg = (ImageView) songLay.findViewById(R.id.coverImg);
-            btn = (Button) songLay.findViewById(R.id.menuSong);
+            songView = songLay.findViewById(R.id.song_title);
+            artistView = songLay.findViewById(R.id.song_artist);
+            coverimg = songLay.findViewById(R.id.coverImg);
+            btn = songLay.findViewById(R.id.menuSong);
         }
     }
 
@@ -72,9 +72,10 @@ public class RecyclerSongAdapter extends RecyclerView.Adapter<RecyclerSongAdapte
     }
 
     @Override
-    public void onBindViewHolder(final MyRecyclerSongHolder holder, final int position) {
+    public void onBindViewHolder(final MyRecyclerSongHolder holder, int position) {
         //get song using position
         final samsung.com.myplayer2.Class.Song currSong = songs.get(position);
+        final int pos = position;
 
         //get title and artist strings, embedded pictures
         holder.songView.setText(currSong.getTitle());
@@ -92,7 +93,7 @@ public class RecyclerSongAdapter extends RecyclerView.Adapter<RecyclerSongAdapte
                 Context c = view.getContext();
                 Intent play = new Intent("ToService");
                 play.setAction("SvPlayOne");
-                play.putExtra("pos", position);
+                play.putExtra("pos", pos);
                 c.sendBroadcast(play);
             }
         });
@@ -100,7 +101,7 @@ public class RecyclerSongAdapter extends RecyclerView.Adapter<RecyclerSongAdapte
         holder.btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createPopUp(mContext, holder.btn, onPlaylist, position);
+                createPopUp(mContext, holder.btn, onPlaylist, pos);
             }
         });
     }
@@ -134,7 +135,7 @@ public class RecyclerSongAdapter extends RecyclerView.Adapter<RecyclerSongAdapte
 
                                 LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                                 View customview = inflater.inflate(R.layout.alert_layout, null);
-                                lv = (ListView) customview.findViewById(R.id.listPlaylist);
+                                lv = customview.findViewById(R.id.listPlaylist);
                                 Namelist = new ArrayList<>();
                                 final DatabaseHandler db = new DatabaseHandler(mContext);
                                 Namelist = db.GetAllPlaylistName();

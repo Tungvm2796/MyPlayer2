@@ -67,15 +67,15 @@ public class AlbumFragment extends Fragment implements RecyclerAlbumAdapter.Albu
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_album, container, false);
         function = new Function();
-        clickme = (Button) v.findViewById(R.id.btnlay);
-        clickmeback = (Button) v.findViewById(R.id.btnlay2);
+        clickme = v.findViewById(R.id.btnlay);
+        clickmeback = v.findViewById(R.id.btnlay2);
         context = super.getActivity();
-        albumView = (RecyclerView) v.findViewById(R.id.albumView);
-        songOfAlbum = (RecyclerView) v.findViewById(R.id.song_of_album);
-        xemid = (TextView) v.findViewById(R.id.xemAlbumId);
+        albumView = v.findViewById(R.id.albumView);
+        songOfAlbum = v.findViewById(R.id.song_of_album);
+        xemid = v.findViewById(R.id.xemAlbumId);
 
-        lin1 = (LinearLayout) v.findViewById(R.id.lin1);
-        lin2 = (LinearLayout) v.findViewById(R.id.lin2);
+        lin1 = v.findViewById(R.id.lin1);
+        lin2 = v.findViewById(R.id.lin2);
 
         setRetainInstance(true);
 

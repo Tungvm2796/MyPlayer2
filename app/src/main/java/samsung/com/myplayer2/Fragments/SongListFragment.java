@@ -13,10 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -37,19 +33,15 @@ public class SongListFragment extends Fragment {
     }
 
     public ArrayList<Song> SongList;
-    private ArrayList<Song> SongFilterList;
+    //private ArrayList<Song> SongFilterList;
     private RecyclerView songView;
     //    EditText searchbox;
     Context context;
-    Animation animation;
+    //Animation animation;
 
     MyService myService;
     private boolean musicBound = false;
     private Intent playintent;
-    TextView textTimeSong;
-    TextView textTotal;
-    TextView txtTitle;
-    SeekBar seekBar;
 //    ImageButton btnsearch;
 
     Toolbar toolbar;
@@ -83,21 +75,13 @@ public class SongListFragment extends Fragment {
 
         function = new Function();
 
-        songView = (RecyclerView) v.findViewById(R.id.song_list);
+        songView =  v.findViewById(R.id.song_list);
 
 //        btnsearch = (ImageButton) v.findViewById(R.id.btnsearch);
 
-        textTimeSong = (TextView) getActivity().findViewById(R.id.time_song);
-
-        textTotal = (TextView) getActivity().findViewById(R.id.time_total);
-
-        txtTitle = (TextView) getActivity().findViewById(R.id.title);
-
-        seekBar = (SeekBar) getActivity().findViewById(R.id.seekbar_song);
-
 //        searchbox = (EditText) v.findViewById(R.id.searchbox);
 
-        animation = AnimationUtils.loadAnimation(getActivity(), R.anim.disc_rolate);
+        //animation = AnimationUtils.loadAnimation(getActivity(), R.anim.disc_rolate);
 
         context = v.getContext();
 
@@ -105,7 +89,7 @@ public class SongListFragment extends Fragment {
 
         SongList = new ArrayList<>();
 
-        SongFilterList = new ArrayList<>();
+        //SongFilterList = new ArrayList<>();
 
 //        function.getSongList(getActivity(), SongList);
         SongList = ((MainActivity) getActivity()).getAllSong();
@@ -213,12 +197,12 @@ public class SongListFragment extends Fragment {
     }
 
 
-    public void getSongByName(String entry, ArrayList<Song> entryArray) {
-        for (int i = 0; i < entryArray.size(); i++) {
-            if (entryArray.get(i).getTitle().toLowerCase().contains(entry) || entryArray.get(i).getArtist().toLowerCase().contains(entry))
-                SongFilterList.add(entryArray.get(i));
-        }
-    }
+//    public void getSongByName(String entry, ArrayList<Song> entryArray) {
+//        for (int i = 0; i < entryArray.size(); i++) {
+//            if (entryArray.get(i).getTitle().toLowerCase().contains(entry) || entryArray.get(i).getArtist().toLowerCase().contains(entry))
+//                SongFilterList.add(entryArray.get(i));
+//        }
+//    }
 
     private ServiceConnection musicConnection = new ServiceConnection() {
         @Override

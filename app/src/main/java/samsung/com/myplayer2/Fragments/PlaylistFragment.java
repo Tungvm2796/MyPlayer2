@@ -89,14 +89,14 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
 
         function = new Function();
 
-        btnViewSong = (Button) v.findViewById(R.id.btnSonginList);
-        playListView = (RecyclerView) v.findViewById(R.id.PlayListView);
-        btnAdd = (ImageButton) v.findViewById(R.id.btnAddPlaylist);
-        btnLay2 = (Button) v.findViewById(R.id.btnlay2);
-        songInPlaylist = (RecyclerView) v.findViewById(R.id.song_in_playlist);
+        btnViewSong = v.findViewById(R.id.btnSonginList);
+        playListView = v.findViewById(R.id.PlayListView);
+        btnAdd = v.findViewById(R.id.btnAddPlaylist);
+        btnLay2 = v.findViewById(R.id.btnlay2);
+        songInPlaylist = v.findViewById(R.id.song_in_playlist);
 
-        lin1 = (LinearLayout) v.findViewById(R.id.lin1);
-        lin2 = (LinearLayout) v.findViewById(R.id.lin2);
+        lin1 = v.findViewById(R.id.lin1);
+        lin2 = v.findViewById(R.id.lin2);
 
         db = new DatabaseHandler(getActivity());
         playlists = db.getAllList();
@@ -280,37 +280,39 @@ public class PlaylistFragment extends Fragment implements RecyclerPlaylistAdapte
     BroadcastReceiver PlaylistBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals("Remove")) {
-                final String plid = playlists.get(pos).getListid();
-                final Long songid = intent.getLongExtra("songid", 0);
+            if (intent.getAction() != null) {
+                if (intent.getAction().equals("Remove")) {
+                    final String plid = playlists.get(pos).getListid();
+                    final Long songid = intent.getLongExtra("songid", 0);
 
-                AlertDialog.Builder aat = new AlertDialog.Builder(getActivity());
-                aat.setTitle("Delete ?")
-                        .setMessage("Are you sure to delete ?")
-                        .setCancelable(true)
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // TODO Auto-generated method stub
-                                dialog.cancel();
-                            }
-                        })
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // TODO Auto-generated method stub
-                                        db.RemoveSongFromPlaylist(plid, Long.toString(songid));
-                                        RenewListSongOfPlaylist(pos);
-                                        Toast.makeText(getActivity(), "Song removed", Toast.LENGTH_SHORT).show();
-                                    }
+                    AlertDialog.Builder aat = new AlertDialog.Builder(getActivity());
+                    aat.setTitle("Delete ?")
+                            .setMessage("Are you sure to delete ?")
+                            .setCancelable(true)
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // TODO Auto-generated method stub
+                                    dialog.cancel();
                                 }
-                        );
-                AlertDialog art = aat.create();
-                art.show();
-            } else if (intent.getAction().equals("Changed")) {
-                myService.setSongListFrag4(songAdapterPlaylist.getSongs());
-            } else if (intent.getAction().equals("Unregister")) {
-                getActivity().unregisterReceiver(PlaylistBroadcast);
+                            })
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // TODO Auto-generated method stub
+                                            db.RemoveSongFromPlaylist(plid, Long.toString(songid));
+                                            RenewListSongOfPlaylist(pos);
+                                            Toast.makeText(getActivity(), "Song removed", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                            );
+                    AlertDialog art = aat.create();
+                    art.show();
+                } else if (intent.getAction().equals("Changed")) {
+                    myService.setSongListFrag4(songAdapterPlaylist.getSongs());
+                } else if (intent.getAction().equals("Unregister")) {
+                    getActivity().unregisterReceiver(PlaylistBroadcast);
+                }
             }
         }
     };

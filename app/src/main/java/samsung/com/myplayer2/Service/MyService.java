@@ -20,15 +20,11 @@ import android.preference.PreferenceManager;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
-import android.widget.ImageButton;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -91,10 +87,10 @@ public class MyService extends Service implements
 
     public Context context;
 
-    public static WeakReference<SeekBar> seekPro;
-    public static WeakReference<TextView> txtTotal;
-    public static WeakReference<TextView> txtCurTime;
-    public static WeakReference<ImageButton> btnPayPause;
+    //public static WeakReference<SeekBar> seekPro;
+    //public static WeakReference<TextView> txtTotal;
+    //public static WeakReference<TextView> txtCurTime;
+    //public static WeakReference<ImageButton> btnPayPause;
     SharedPreferences shared;
     SharedPreferences.Editor editor;
 
@@ -111,9 +107,6 @@ public class MyService extends Service implements
 
         context = this;
 
-        shared = PreferenceManager.getDefaultSharedPreferences(context);
-        editor = shared.edit();
-
         IntentFilter svintent = new IntentFilter("ToService");
         svintent.addAction("SvPlayPause");
         svintent.addAction("SvPlayOne");
@@ -125,46 +118,62 @@ public class MyService extends Service implements
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction() != null) {
-            if (intent.getAction().toString().equals(Constants.ACTION.PAUSE_ACTION)) {
-                pausePlayer();
-                showNoti(2);
 
-                Intent intent1 = new Intent("ToActivity");
-                intent1.setAction("PlayPause");
-                intent1.putExtra("key", "pause");
-                sendBroadcast(intent1);
+        String action = intent.getAction();
 
-                progressHandler.removeCallbacks(run);
+        if (action != null) {
 
-            } else if (intent.getAction().toString().equals(Constants.ACTION.PLAY_ACTION)) {
-                go();
-                showNoti(1);
+            switch (action) {
 
-                Intent intent2 = new Intent("ToActivity");
-                intent2.setAction("PlayPause");
-                intent2.putExtra("key", "play");
-                sendBroadcast(intent2);
+                case Constants.ACTION.PAUSE_ACTION:
+                    pausePlayer();
+                    showNoti(2);
 
-                updateProgress();
+                    Intent intent1 = new Intent("ToActivity");
+                    intent1.setAction("PlayPause");
+                    intent1.putExtra("key", "pause");
+                    sendBroadcast(intent1);
 
-            } else if (intent.getAction().toString().equals(Constants.ACTION.NEXT_ACTION)) {
-                showNoti(1);
-                playNext();
-            } else if (intent.getAction().toString().equals(Constants.ACTION.PREV_ACTION)) {
-                showNoti(1);
-                playPrev();
-            } else if (intent.getAction().toString().equals(Constants.ACTION.EXIT_ACTION)) {
-                if (!player.isPlaying()) {
-                    if (bothRun = true) {
-                        stopForeground(true);
-                        checkBothRun();
-                    } else if (bothRun = false) {
-                        stopForeground(true);
-                        unregisterReceiver(myServBroadcast);
-                        stopSelf();
+                    progressHandler.removeCallbacks(run);
+
+                    break;
+
+                case Constants.ACTION.PLAY_ACTION:
+
+                    go();
+                    showNoti(1);
+
+                    Intent intent2 = new Intent("ToActivity");
+                    intent2.setAction("PlayPause");
+                    intent2.putExtra("key", "play");
+                    sendBroadcast(intent2);
+
+                    updateProgress();
+
+                    break;
+
+                case Constants.ACTION.NEXT_ACTION:
+                    showNoti(1);
+                    playNext();
+                    break;
+
+                case Constants.ACTION.PREV_ACTION:
+                    showNoti(1);
+                    playPrev();
+                    break;
+
+                case Constants.ACTION.EXIT_ACTION:
+                    if (!player.isPlaying()) {
+                        if (bothRun = true) {
+                            stopForeground(true);
+                            checkBothRun();
+                        } else if (bothRun = false) {
+                            stopForeground(true);
+                            unregisterReceiver(myServBroadcast);
+                            stopSelf();
+                        }
                     }
-                }
+                    break;
             }
         }
 
@@ -174,10 +183,10 @@ public class MyService extends Service implements
     }
 
     public void initUI() {
-        seekPro = new WeakReference<>(MainActivity.seekBar);
-        txtCurTime = new WeakReference<>(MainActivity.txtTimeSong);
-        txtTotal = new WeakReference<>(MainActivity.txtTotal);
-        btnPayPause = new WeakReference<>(MainActivity.btnPlayPause);
+        //seekPro = new WeakReference<>(MainActivity.seekBar);
+        //txtCurTime = new WeakReference<>(MainActivity.txtTimeSong);
+        //txtTotal = new WeakReference<>(MainActivity.txtTotal);
+        //btnPayPause = new WeakReference<>(MainActivity.btnPlayPause);
     }
 
     public void initMusicPlayer() {
@@ -272,6 +281,8 @@ public class MyService extends Service implements
         setup.putExtra("songpath", playSong.getData());
         sendBroadcast(setup);
 
+        shared = PreferenceManager.getDefaultSharedPreferences(context);
+        editor = shared.edit();
         editor.clear();
         editor.putString("Title", songs.get(songPosn).getTitle());
         editor.putString("Artist", songs.get(songPosn).getArtist());
@@ -519,7 +530,11 @@ public class MyService extends Service implements
                     songs = allsongs;
                 setSong(posn);
                 playSong(ListNumber);
-                btnPayPause.get().setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+
+                Intent intent4 = new Intent("ToActivity");
+                intent4.setAction("PlayPause");
+                intent4.putExtra("key", "pause");
+                sendBroadcast(intent4);
             }
         }
     };
@@ -534,16 +549,32 @@ public class MyService extends Service implements
 
     static Handler progressHandler = new Handler();
 
-    static Runnable run = new Runnable() {
+    Runnable run = new Runnable() {
         @Override
         public void run() {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+            //SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
 
             try {
-                seekPro.get().setMax(player.getDuration());
-                txtTotal.get().setText(simpleDateFormat.format(player.getDuration()));
-                txtCurTime.get().setText(simpleDateFormat.format(player.getCurrentPosition()));
-                seekPro.get().setProgress(player.getCurrentPosition());
+
+                Intent intent1 = new Intent("ToActivity");
+                intent1.setAction("timeTotal");
+                intent1.putExtra("key", player.getDuration());
+                sendBroadcast(intent1);
+
+                //seekPro.get().setMax(player.getDuration());
+                //txtTotal.get().setText(simpleDateFormat.format(player.getDuration()));
+
+                Intent intent2 = new Intent("ToActivity");
+                intent2.setAction("timeSong");
+                intent2.putExtra("key", player.getCurrentPosition());
+                sendBroadcast(intent2);
+                //txtCurTime.get().setText(simpleDateFormat.format(player.getCurrentPosition()));
+
+                //Intent intent3 = new Intent("ToActivity");
+                //intent3.setAction("seekbar");
+                //intent3.putExtra("key", player.getCurrentPosition());
+                //sendBroadcast(intent3);
+                //seekPro.get().setProgress(player.getCurrentPosition());
                 progressHandler.postDelayed(this, 100);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -555,9 +586,18 @@ public class MyService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         //check if playback has reached the end of a track
-        seekPro.get().setProgress(0);
+        Intent intent3 = new Intent("ToActivity");
+        intent3.setAction("seekbar");
+        //intent3.putExtra("key", 0);
+        sendBroadcast(intent3);
+
         progressHandler.removeCallbacks(run);
-        btnPayPause.get().setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+
+        Intent intent4 = new Intent("ToActivity");
+        intent4.setAction("PlayPause");
+        intent4.putExtra("key", "complete");
+        sendBroadcast(intent4);
+        //btnPayPause.get().setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
         if (player.getCurrentPosition() > 0) {
             mp.reset();
             playNext();

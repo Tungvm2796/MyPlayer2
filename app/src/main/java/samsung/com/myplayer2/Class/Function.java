@@ -77,8 +77,8 @@ public class Function {
         MediaMetadataRetriever mData = new MediaMetadataRetriever();
         mData.setDataSource(filePath);
 
-        byte art[] = mData.getEmbeddedPicture();
-        return art;
+        //byte art[] = mData.getEmbeddedPicture();
+        return mData.getEmbeddedPicture();
     }
 
     public Bitmap getResizedBitmap(Bitmap bm, int newWidth, int newHeight) {
@@ -119,7 +119,7 @@ public class Function {
         int dataColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
         int albumIdColumn = musicCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
 
-        if (musicCursor != null && musicCursor.moveToFirst()) {
+        if (musicCursor.moveToFirst()) {
             //add song to list
             do {
                 long thisId = musicCursor.getLong(idColumn);
@@ -172,9 +172,10 @@ public class Function {
                 albumList.add(new Album(id, name, artist2, nr, art));
 
             } while (cursor.moveToNext());
+
+            cursor.close();
         }
         SortByAlbumName(albumList);
-        cursor.close();
     }
 
     public void getArtist(Context mContext, ArrayList<Artist> artists) {
@@ -194,9 +195,10 @@ public class Function {
                 artists.add(new Artist(artist2));
 
             } while (cursor.moveToNext());
+
+            cursor.close();
         }
         SortByArtistName(artists);
-        cursor.close();
     }
 
     public void getGenres(Context mContext, ArrayList<String> genres) {

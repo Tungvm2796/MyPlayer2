@@ -52,10 +52,10 @@ public class SongInPlaylistAdapter extends RecyclerView.Adapter<SongInPlaylistAd
         public MyRecyclerSongHolder(View songLay) {
             super(songLay);
             //get title and artist views
-            songView = (TextView) songLay.findViewById(R.id.song_title);
-            artistView = (TextView) songLay.findViewById(R.id.song_artist);
-            coverimg = (ImageView) songLay.findViewById(R.id.coverImg);
-            btn = (Button) songLay.findViewById(R.id.menuSong);
+            songView = songLay.findViewById(R.id.song_title);
+            artistView = songLay.findViewById(R.id.song_artist);
+            coverimg = songLay.findViewById(R.id.coverImg);
+            btn = songLay.findViewById(R.id.menuSong);
         }
 
         @Override

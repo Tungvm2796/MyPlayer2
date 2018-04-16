@@ -39,9 +39,9 @@ public class RecyclerAlbumAdapter extends RecyclerView.Adapter<RecyclerAlbumAdap
         public MyRecyclerAlbumHolder(View albumLay) {
             super(albumLay);
 
-            albumName = (TextView) albumLay.findViewById(R.id.album_name);
-            albumArtist = (TextView) albumLay.findViewById(R.id.album_artist);
-            albumImg = (ImageView) albumLay.findViewById(R.id.album_img);
+            albumName = albumLay.findViewById(R.id.album_name);
+            albumArtist = albumLay.findViewById(R.id.album_artist);
+            albumImg = albumLay.findViewById(R.id.album_img);
             itemView.setOnClickListener(this);
 
         }

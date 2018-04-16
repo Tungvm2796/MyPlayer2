@@ -19,7 +19,6 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -48,6 +47,7 @@ import com.musixmatch.lyrics.musiXmatchLyricsConnector;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import samsung.com.myplayer2.Adapter.CustomPagerAdapter;
@@ -87,22 +87,22 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     ViewPager viewPager;
     CustomPagerAdapter customPagerAdapter;
 
-    TabLayout tabLayout;
+    //TabLayout tabLayout;
     SmartTabLayout smartTabLayout;
     //PagerTabStrip pagerTabStrip;
     MyService myService;
     private boolean musicBound = false;
     private Intent playintent;
-    public static ImageButton btnPlayPause;
+    public ImageButton btnPlayPause;
     ImageButton next;
     ImageButton prev;
     ImageButton shuffle;
     ImageButton repeat;
     TextView txtArtist;
     TextView txtTitle;
-    public static TextView txtTimeSong;
-    public static TextView txtTotal;
-    public static SeekBar seekBar;
+    public TextView txtTimeSong;
+    public TextView txtTotal;
+    public SeekBar seekBar;
     ImageView imgDisc;
     String SongPath;
 
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
         initPermission();
 
-        Button mybtn = (Button) findViewById(R.id.xemlist);
+        Button mybtn = findViewById(R.id.xemlist);
 
         context = this;
         function = new Function();
@@ -155,6 +155,9 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
+        toActivity.addAction("timeSong");
+        toActivity.addAction("timeTotal");
+        toActivity.addAction("seekbar");
         toActivity.addAction("FragIndex");
         registerReceiver(myMainBroadcast, toActivity);
 
@@ -189,23 +192,23 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         function.getAlbumsLists(context, AllAlbum);
         function.getArtist(context, AllArtist);
 
-        resultAlbum = (RecyclerView) findViewById(R.id.album_result);
-        resultArtist = (RecyclerView) findViewById(R.id.artist_result);
-        resultSong = (RecyclerView) findViewById(R.id.song_result);
-        resultInnerSong = (RecyclerView) findViewById(R.id.song_inner_result);
+        resultAlbum = findViewById(R.id.album_result);
+        resultArtist = findViewById(R.id.artist_result);
+        resultSong = findViewById(R.id.song_result);
+        resultInnerSong = findViewById(R.id.song_inner_result);
 
         songAdapter = new RecyclerSongAdapter();
 
         setSuggestion();
 
-        searchView = (FloatingSearchView) findViewById(R.id.floating_search_view);
+        searchView = findViewById(R.id.floating_search_view);
 
         //set layout slide listener
-        slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        slidingLayout = findViewById(R.id.sliding_layout);
         slidingLayout.getChildAt(1).setOnClickListener(null);
         //slidingLayout.setDragView(findViewById(R.id.dragview));
 
-        imgDisc = (ImageView) findViewById(R.id.imageViewDisc);
+        imgDisc = findViewById(R.id.imageViewDisc);
 
         slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -316,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
                 Suggestion sug = (Suggestion) searchSuggestion;
 
-                SetDataForResultView(sug.getBody().toString());
+                SetDataForResultView(sug.getBody());
 
                 searchView.clearFocus();
             }
@@ -395,8 +398,8 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
             }
         });
 
-        Button btn2 = (Button) findViewById(R.id.btnmainlay2);
-        Button btn3 = (Button) findViewById(R.id.btnmainlay3);
+        Button btn2 = findViewById(R.id.btnmainlay2);
+        Button btn3 = findViewById(R.id.btnmainlay3);
 
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -421,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         mLyricsPlugin = new musiXmatchLyricsConnector(this);
         mLyricsPlugin.setLoadingMessage("Your custom title", "Your custom message");
 
-        Button btnhide = (Button) findViewById(R.id.btn_hide);
+        Button btnhide = findViewById(R.id.btn_hide);
         btnhide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -437,21 +440,21 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     }
 
     private void initView() {
-        txtArtist = (TextView) findViewById(R.id.artist);
+        txtArtist = findViewById(R.id.artist);
 
-        txtTitle = (TextView) findViewById(R.id.title);
+        txtTitle = findViewById(R.id.title);
 
-        txtTimeSong = (TextView) findViewById(R.id.time_song);
+        txtTimeSong = findViewById(R.id.time_song);
 
-        txtTotal = (TextView) findViewById(R.id.time_total);
+        txtTotal = findViewById(R.id.time_total);
 
-        seekBar = (SeekBar) findViewById(R.id.seekbar_song);
+        seekBar = findViewById(R.id.seekbar_song);
 
-        smartTabLayout = (SmartTabLayout) findViewById(R.id.viewpagertab);
+        smartTabLayout = findViewById(R.id.viewpagertab);
 
         customPagerAdapter = new CustomPagerAdapter(this, getSupportFragmentManager());
 
-        viewPager = (ViewPager) findViewById(R.id.viewpager1);
+        viewPager = findViewById(R.id.viewpager1);
 
         viewPager.setAdapter(customPagerAdapter);
 
@@ -463,15 +466,15 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
 
         //FragmentAdapter fragmentAdapter = new FragmentAdapter(fragmentManager, MainActivity.this);
 
-        btnPlayPause = (ImageButton) findViewById(R.id.btn_play_pause);
-        next = (ImageButton) findViewById(R.id.btn_next);
-        prev = (ImageButton) findViewById(R.id.btn_prev);
-        shuffle = (ImageButton) findViewById(R.id.btn_shuffle);
-        repeat = (ImageButton) findViewById(R.id.btn_repeat);
+        btnPlayPause = findViewById(R.id.btn_play_pause);
+        next = findViewById(R.id.btn_next);
+        prev = findViewById(R.id.btn_prev);
+        shuffle = findViewById(R.id.btn_shuffle);
+        repeat = findViewById(R.id.btn_repeat);
 
-        mainlay1 = (LinearLayout) findViewById(R.id.mainlay1);
-        mainlay2 = (LinearLayout) findViewById(R.id.mainlay2);
-        mainlay3 = (LinearLayout) findViewById(R.id.mainlay3);
+        mainlay1 = findViewById(R.id.mainlay1);
+        mainlay2 = findViewById(R.id.mainlay2);
+        mainlay3 = findViewById(R.id.mainlay3);
 
         mainlay2.setVisibility(View.INVISIBLE);
         mainlay3.setVisibility(View.INVISIBLE);
@@ -561,17 +564,11 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
         IntentFilter toActivity = new IntentFilter("ToActivity");
         toActivity.addAction("PlayPause");
         toActivity.addAction("StartPlay");
+        toActivity.addAction("timeSong");
+        toActivity.addAction("timeTotal");
+        toActivity.addAction("seekbar");
         toActivity.addAction("FragIndex");
         registerReceiver(myMainBroadcast, toActivity);
-
-        try {
-            if (myService.isPng())
-                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-            else
-                btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         String saveTitle = settings.getString("Title", "0");
@@ -614,21 +611,49 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
     BroadcastReceiver myMainBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().toString().equals("PlayPause")) {
-                String od = intent.getStringExtra("key");
-                Toast.makeText(context, od, Toast.LENGTH_SHORT).show();
-                if (od.equals("pause"))
-                    btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
-                else if (od.equals("play"))
-                    btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-            } else if (intent.getAction().toString().equals("StartPlay")) {
-                txtTitle.setText(intent.getStringExtra("title"));
-                txtArtist.setText(intent.getStringExtra("artist"));
-                btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
-                SongPath = intent.getStringExtra("songpath");
-                Glide.with(context).load(function.BitmapToByte(function.GetBitmap(SongPath))).into(imgDisc);
-            } else if (intent.getAction().toString().equals("FragIndex")) {
-                index = intent.getIntExtra("key", 0);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+            String action = intent.getAction();
+            if(action != null) {
+                switch (action) {
+
+                    case "PlayPause":
+                        String od = intent.getStringExtra("key");
+                        if (od.equals("pause")) {
+                            btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+                        } else if (od.equals("play")) {
+                            btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                        } else if (od.equals("complete"))
+                            btnPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_24dp);
+                        break;
+
+                    case "StartPlay":
+                        txtTitle.setText(intent.getStringExtra("title"));
+                        txtArtist.setText(intent.getStringExtra("artist"));
+                        btnPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_24dp);
+                        SongPath = intent.getStringExtra("songpath");
+                        Glide.with(context).load(function.GetBitMapByte(SongPath)).into(imgDisc);
+                        break;
+
+                    case "FragIndex":
+                        index = intent.getIntExtra("key", 0);
+                        break;
+
+                    case "timeTotal":
+                        int timeTotal = intent.getIntExtra("key", 0);
+                        seekBar.setMax(timeTotal);
+                        txtTotal.setText(simpleDateFormat.format(timeTotal));
+                        break;
+
+                    case "timeSong":
+                        int timeSong = intent.getIntExtra("key", 0);
+                        seekBar.setProgress(timeSong);
+                        txtTimeSong.setText(simpleDateFormat.format(timeSong));
+                        break;
+
+                    case "seekbar":
+                        seekBar.setProgress(0);
+                        break;
+                }
             }
         }
     };
@@ -851,7 +876,7 @@ public class MainActivity extends AppCompatActivity implements RecyclerAlbumAdap
                 if ((intent.resolveActivity(getPackageManager()) != null)) {
                     startActivityForResult(intent, RESULT_OK);
                 } else {
-                    // No equalizer found :(
+                    // No equalizer found
                 }
                 break;
 
